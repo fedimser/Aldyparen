@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using AForge.Video.DirectShow;
 using AForge.Video;
 
-namespace CyberLyzer
+namespace Aldyparen
 {
     public partial class Form2 : Form
     {

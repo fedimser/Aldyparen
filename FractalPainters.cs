@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Numerics;
 
-namespace CyberLyzer
+namespace Aldyparen
 {
     public static class FractalPainters
     {
@@ -144,18 +144,49 @@ namespace CyberLyzer
 
         }
 
-       public static int PNL_Painter(Complex c, CLFrameParams p)
+        public static int PolynomPainter2(Complex c, CLFrameParams p)
         {
             int M = p.maxUsedColors - 1;
 
             Complex z = 0;
             for (int i = 0; i < M; i++)
             {
-                z = p.k[1] + p.k[2] * z + p.k[3] * c + p.k[4] * z * z + p.k[5] * z * c + p.k[6] * c * c;
+                z = p.k[0] + p.k[1] * z + p.k[2] * c + p.k[3] * z * z + p.k[4] * z * c + p.k[5] * c * c;
                 if (z.Real * z.Real + z.Imaginary * z.Imaginary > 1000) return i;
             }
             return M;
         }
+
+
+       public static int PolynomPainter3(Complex c, CLFrameParams p)
+       {
+           int M = p.maxUsedColors - 1;
+
+           Complex z = 0;
+           for (int i = 0; i < M; i++)
+           {
+               z = p.k[0] + p.k[1] * z + p.k[2] * c + p.k[3] * z * z + p.k[4] * z * c + p.k[5] * c * c+
+                   p.k[6]*z*z*z+p.k[7]*z*z*c+p.k[8]*z*c*c+p.k[9]*c*c*c;
+
+               if (z.Real * z.Real + z.Imaginary * z.Imaginary > 1000) return i;
+           }
+           return M;
+       }
+
+       public static int PolynomPainterAlt(Complex c, CLFrameParams p)
+       {
+           int M = p.maxUsedColors - 1;
+
+           Complex z = 0;
+           for (int i = 0; i < M; i++)
+           {
+               z = p.k[0] + p.k[1] * z + p.k[2] * c + p.k[3] * z * z + p.k[4] * z * c + p.k[5] * c * c +
+                   p.k[6] * z * z * z + p.k[7] * z * z * c + p.k[8] * z * c * c + p.k[9] * c * c * c;
+
+               if  (z.Real * z.Real + z.Imaginary * z.Imaginary > 1000)  return i;
+           }
+           return M;
+       }
 
 
 

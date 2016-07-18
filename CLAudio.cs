@@ -7,7 +7,7 @@ using System.Drawing;
 using NAudio.Wave;
 using System.Drawing.Imaging;
 
-namespace CyberLyzer
+namespace Aldyparen
 {
     class CLAudio
     {

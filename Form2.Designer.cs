@@ -1,4 +1,4 @@
-﻿namespace CyberLyzer
+﻿namespace Aldyparen
 {
     partial class Form2
     {

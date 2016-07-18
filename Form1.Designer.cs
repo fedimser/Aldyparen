@@ -1,4 +1,4 @@
-﻿namespace CyberLyzer
+﻿namespace Aldyparen
 {
     partial class Form1
     {
@@ -82,6 +82,10 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cUDASettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LabelCuda = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -100,15 +104,16 @@
             this.statusStrip1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox1
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(5, 48);
+            this.pictureBox1.Location = new System.Drawing.Point(9, 77);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(640, 480);
+            this.pictureBox1.Size = new System.Drawing.Size(640, 452);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
@@ -128,10 +133,10 @@
             // pictureBox2
             // 
             this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox2.Location = new System.Drawing.Point(653, 49);
+            this.pictureBox2.Location = new System.Drawing.Point(653, 77);
             this.pictureBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(640, 480);
+            this.pictureBox2.Size = new System.Drawing.Size(640, 452);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox2.TabIndex = 4;
             this.pictureBox2.TabStop = false;
@@ -145,7 +150,7 @@
             // labelOF
             // 
             this.labelOF.AutoSize = true;
-            this.labelOF.Location = new System.Drawing.Point(1, 23);
+            this.labelOF.Location = new System.Drawing.Point(12, 56);
             this.labelOF.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelOF.Name = "labelOF";
             this.labelOF.Size = new System.Drawing.Size(51, 20);
@@ -155,7 +160,7 @@
             // labelNF
             // 
             this.labelNF.AutoSize = true;
-            this.labelNF.Location = new System.Drawing.Point(653, 23);
+            this.labelNF.Location = new System.Drawing.Point(653, 56);
             this.labelNF.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelNF.Name = "labelNF";
             this.labelNF.Size = new System.Drawing.Size(51, 20);
@@ -400,7 +405,9 @@
             "Generic Mandelbrot set (faster)",
             "Madelbrot Set z=z*z*z*z+c",
             "Dzeta",
-            "PNL"});
+            "Polynom (square)",
+            "Polynom (cubic)",
+            "Polynom Alt"});
             this.comboBox1.Location = new System.Drawing.Point(53, 17);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBox1.Name = "comboBox1";
@@ -665,7 +672,8 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.LabelThreads});
+            this.LabelThreads,
+            this.LabelCuda});
             this.statusStrip1.Location = new System.Drawing.Point(0, 891);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
@@ -721,7 +729,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1, 3);
+            this.label1.Location = new System.Drawing.Point(12, 36);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(146, 20);
             this.label1.TabIndex = 66;
@@ -730,11 +738,44 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(653, 3);
+            this.label2.Location = new System.Drawing.Point(649, 36);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(107, 20);
             this.label2.TabIndex = 67;
             this.label2.Text = "Current frame";
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1294, 33);
+            this.menuStrip1.TabIndex = 68;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cUDASettingsToolStripMenuItem});
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(88, 29);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // cUDASettingsToolStripMenuItem
+            // 
+            this.cUDASettingsToolStripMenuItem.Image = global::Aldyparen.Properties.Resources.nvidiaLogo;
+            this.cUDASettingsToolStripMenuItem.Name = "cUDASettingsToolStripMenuItem";
+            this.cUDASettingsToolStripMenuItem.Size = new System.Drawing.Size(213, 30);
+            this.cUDASettingsToolStripMenuItem.Text = "CUDA Settings...";
+            this.cUDASettingsToolStripMenuItem.Click += new System.EventHandler(this.cUDASettingsToolStripMenuItem_Click);
+            // 
+            // LabelCuda
+            // 
+            this.LabelCuda.Image = global::Aldyparen.Properties.Resources.nvidiaLogo;
+            this.LabelCuda.Name = "LabelCuda";
+            this.LabelCuda.Size = new System.Drawing.Size(195, 25);
+            this.LabelCuda.Text = "toolStripStatusLabel1";
             // 
             // Form1
             // 
@@ -747,6 +788,7 @@
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBoxParams);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.droupBoxAnimation);
@@ -756,6 +798,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
+            this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "Form1";
             this.Text = "Algepraic Dynamic Parametric Renderer";
@@ -785,6 +828,8 @@
             this.groupBox4.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -844,6 +889,10 @@
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cUDASettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel LabelCuda;
     }
 }
 

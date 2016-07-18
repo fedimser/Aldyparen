@@ -6,19 +6,34 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
 
-namespace CyberLyzer
+using Cudafy;
+using Cudafy.Translator;
+
+namespace Aldyparen
 {
+
+
+    [CudafyDummy]
+    public struct FrameStruct
+    {
+        public double rotation;
+        public double scale;
+        public Complex ctr;
+    }
+     
    public  class CLFrame
-    { 
+    {
+
+       
 
 
         public delegate int Get_Pixel(Complex pnt, CLFrameParams p); 
          
 
-      public  double rotation;
+        public  double rotation;
         public  double scale;
         public Complex ctr;
-       public Get_Pixel dlgt;
+        public Get_Pixel dlgt;
 
         public Color[] colorMap; 
 
@@ -46,6 +61,15 @@ namespace CyberLyzer
             colorMap = new Color[1000];
         }
 
+       public FrameStruct getFrameStruct()
+       {
+           FrameStruct fs = new FrameStruct();
+           fs.rotation = this.rotation;
+           fs.scale = this.scale;
+           fs.ctr = this.ctr;
+           return fs;
+       }
+
 
             
        //Deprecated
@@ -67,11 +91,12 @@ namespace CyberLyzer
             return bmp;
         }
 
-       unsafe public Bitmap getFrame(int W, int H)
+
+       unsafe private Bitmap getFrameCpu(int W, int H)
        {
            int W2 = W * 2;
-           int H2 =H* 2;
-           Bitmap bmp = new Bitmap(W2,   H2,PixelFormat.Format24bppRgb);
+           int H2 = H * 2;
+           Bitmap bmp = new Bitmap(W2, H2, PixelFormat.Format24bppRgb);
 
            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, W2, H2), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
 
@@ -96,9 +121,20 @@ namespace CyberLyzer
            {
                bmp.UnlockBits(bd);
            }
- 
+
 
            return bmp;
+       }
+
+
+       //Real size is twice more!
+       unsafe public Bitmap getFrame(int W, int H)
+       {
+           if (CudaPainter.enabled)
+           {
+               return CudaPainter.getFrame(W, H, this);
+           }
+           else return getFrameCpu(W, H);
        }
 
 

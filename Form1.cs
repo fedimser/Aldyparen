@@ -13,7 +13,7 @@ using System.Drawing.Imaging;
 using System.Threading;
 using System.IO;
 
-namespace CyberLyzer
+namespace Aldyparen
 {
     public partial class Form1 : Form
     {
@@ -330,6 +330,11 @@ namespace CyberLyzer
 
             LabelThreads.Text = "Threads: " + photoThreadsCounter.ToString();
 
+            if (CudaPainter.enabled)
+                LabelCuda.Text = "CUDA Enabled";
+            else
+                LabelCuda.Text = "CUDA Disabled";
+
             button5.Enabled = (frame_counter > 1);
          }
 
@@ -447,10 +452,23 @@ namespace CyberLyzer
                 curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.DzetaPainter);
                 curFrame.param = new CLFrameParams(0, 50);
             }
-             else if (comboBox1.SelectedIndex == 10)
+            else if (comboBox1.SelectedIndex == 10)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PNL_Painter);
-                curFrame.param = new CLFrameParams(7, 50);
+                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PolynomPainter2);
+                curFrame.param = new CLFrameParams(6, 50);
+                makeGeoGradient(0, 49);
+            }
+            else if (comboBox1.SelectedIndex == 11)
+            {
+                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PolynomPainter3);
+                curFrame.param = new CLFrameParams(10, 50);
+                makeGeoGradient(0, 49);
+            }
+
+            else if (comboBox1.SelectedIndex == 12)
+            {
+                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PolynomPainterAlt);
+                curFrame.param = new CLFrameParams(10, 50);
                 makeGeoGradient(0, 49);
             }
 
@@ -530,7 +548,9 @@ namespace CyberLyzer
         }
 
         void resetParamsMenu()
-        {
+        { 
+
+
             //if (labelsParams == null) return;
             
             for (int i = 0; i < maxParams; i++)
@@ -543,9 +563,7 @@ namespace CyberLyzer
             {
                 labelsParams[i].Show();
                 inputParams[i].Show();
-
                 curFrame.param.k[i] = (double)inputParams[i].Value;
-                 
             }
 
         }
@@ -767,7 +785,7 @@ namespace CyberLyzer
             string label = "";
             if (checkBox3.Checked)
             {
-                label = String.Format("Pos:({0:e5};{1:e5}).Width:{2:e5}");
+                label = String.Format("Pos:({0:e5};{1:e5}).Width:{2:e5}",fr.ctr.Real,fr.ctr.Imaginary,fr);
             }
 
             pictureBox2.Image.Save(path);
@@ -784,9 +802,18 @@ namespace CyberLyzer
                 param.format = ImageFormat.Bmp;
             }
 
-            Thread t = new Thread(makePhoto);
-            t.Start(param);
-             
+
+            bool separThread = true;
+
+            if (!separThread)
+            {
+                makePhoto(param);
+            }
+            else
+            {
+                Thread t = new Thread(makePhoto);
+                t.Start(param);
+            }
              
         }
 
@@ -868,6 +895,12 @@ namespace CyberLyzer
         {
             frame_counter--;
             addFrame(curFrame.clone());
+        }
+
+        private void cUDASettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var f = new FormCudaSettings();
+            f.ShowDialog();
         }
          
 
