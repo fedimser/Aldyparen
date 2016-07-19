@@ -55,79 +55,9 @@ namespace Aldyparen
     public class Function
     {
 
-        public class Symbol
-        {
-            public byte code;
-            public    Complex value;
-            public int posStart; 
 
-            public Symbol(byte _code, Complex _value)
-            {
-                code = _code;
-                value = _value;
-            }
-
-            public Symbol(byte _code )
-            {
-                code = _code;
-                value = 0;
-            }
-
-
-            public bool isInstant()
-            {
-                return (code == 0);
-            }
-
-            public bool isNumber()
-            {
-                return (code == 0 || (code >= 64 && code <= 127));
-            }
-
-
-
-            public bool isBinaryOperator()
-            {
-                return (code>=1 && code<=5);
-            }
-
-            public bool isUnaryOperator()
-            {
-                return (code >= 6 && code <= 63);
-            }
-
-            public bool isOperator()
-            {
-                return (code >= 1 && code <= 63);            
-            }
-
-
-            public bool isOpeningBracket()
-            {
-                return (code ==128);
-            }
-
-            public bool isClosingBracket()
-            {
-                return (code == 129);
-            }
-
-            public int getPriority()
-            {
-                if (isUnaryOperator()) return 6;
-                if (code == 5) return 5;
-                else if (code == 4 || code == 3) return 4;
-                else if (code == 2 || code == 1) return 3;
-                return 0;
-            }
-
-            public bool isRightAssociated()
-            {
-                return false;
-            }
-
-        }
-         
+        public const int MAX_VARIABLES = 64;
+        public const int MAX_STACK_SIZE = 16;
 
         public static String[] reserved = new String[]
         {"i","pi","sin","cos","tg","ctg","abs","re","im","arg","arcsin",
@@ -135,8 +65,7 @@ namespace Aldyparen
          
         public List<Symbol> symbols;
         public Dictionary<String, int> varNames = new Dictionary<String, int>();
-        public int varCount = 0;
-        public Complex[] varValues = new Complex[64];
+        public Complex[] varValues = new Complex[MAX_VARIABLES];
 
         private String text = "";
 
@@ -144,83 +73,71 @@ namespace Aldyparen
         public Complex[] rpnKoef;
 
 
-        public bool correct = false;
+        private bool correct = false;
         public String errorMessage;
-        public int errorIndex;
+        public int errorIdx1,errorIdx2;
 
         public Function()
         {
 
         }
 
-        private Symbol evalName(String name, Symbol prevSymbol)
+        public Function(String[] _varNames)
         {
-            //firstly, try to evaluate it as a number
-            double val;
-            try
+            foreach (String s in _varNames)
             {
-                val = Convert.ToDouble(name);
-                return new Symbol(0, new Complex(val,0));
+                addVariable(s);
             }
-            catch (Exception ex)
+        }
+
+        public Function clone()
+        {
+            Function ret = new Function();
+            ret.varNames = new Dictionary<String,int>();
+            foreach (KeyValuePair<String, int> entry in this.varNames)
             {
-                 //Do nothing, go further
+                ret.varNames[entry.Key] = entry.Value;
             }
+             
+            
+            ret.text="NOT ACTUAL. SEE RPN ARRAYS.";
+            ret.rpnFormula = new byte[rpnFormula.Length];
+            ret.rpnKoef = new Complex[this.rpnKoef.Length];
+            
 
-
-            if (name == "+") return new Symbol(1);
-            else if (name == "-")
+            for (int i = 0; i < rpnFormula.Length; i++)
             {
-                if (prevSymbol!=null && (prevSymbol.isNumber() || prevSymbol.isClosingBracket()))       //Binar minus
-                    return new Symbol(2);
-                else            //Unar Minus
-                    return new Symbol(25);
+                ret.rpnFormula[i] = this.rpnFormula[i];
             }
-            else if (name == "*") return new Symbol(3);
-            else if (name == "/") return new Symbol(4);
-            else if (name == "^") return new Symbol(5);
+            
 
-            else if (name == "(") return new Symbol(128);
-            else if (name == ")") return new Symbol(129);
-
-            else if (name == "i") return new Symbol(0, Complex.ImaginaryOne);
-            else if (name == "e") return new Symbol(0, new Complex(Math.E, 0));
-            else if (name == "pi") return new Symbol(0, new Complex(Math.PI, 0));
-
-            else if (name == "lg") return new Symbol(6);
-            else if (name == "exp") return new Symbol(7);
-            else if (name == "sin") return new Symbol(8);
-            else if (name == "cos") return new Symbol(9);
-            else if (name == "tg") return new Symbol(10);
-            else if (name == "ctg") return new Symbol(11);
-            else if (name == "arcsin") return new Symbol(12);
-            else if (name == "arccos") return new Symbol(13);
-            else if (name == "arctg") return new Symbol(14);
-            else if (name == "arcctg") return new Symbol(15);
-            else if (name == "sh") return new Symbol(16);
-            else if (name == "ch") return new Symbol(17);
-            else if (name == "th") return new Symbol(18);
-            else if (name == "cth") return new Symbol(19);
-            else if (name == "abs") return new Symbol(20);
-            else if (name == "re") return new Symbol(21);
-            else if (name == "im") return new Symbol(22);
-            else if (name == "arg") return new Symbol(23);
-            else if (name == "sqrt") return new Symbol(24);
-
-
-            byte i=64;
-            foreach (String s in varNames.Keys)
+            for (int i = 0; i < rpnKoef.Length; i++)
             {
-                if (s == name) return new Symbol(i);
-                i++;
+                ret.rpnKoef[i] = this.rpnKoef[i];
             }
+             
 
-            return new Symbol(130);
+            return ret;
+        }
+
+
+        public void move(Function new_f, double step)
+        {
+            int n_old = rpnKoef.Length;
+            int n_new = rpnKoef.Length;
+            if(n_old!=n_new)return;
+
+            for (int i = 0; i < n_old;i++ )
+            {
+                rpnKoef[i] = rpnKoef[i] + step * (new_f.rpnKoef[i] - rpnKoef[i]);
+            }
         }
 
         public void setText(String f)
         {
-            f = f.ToLower().Replace(".", ",")+" ";
+            f = f.ToLower().Replace(".", ",");
+
+            if (f.Length==0 || f[f.Length - 1] != ' ') f = f + " ";
             text = f;
 
 
@@ -237,24 +154,27 @@ namespace Aldyparen
                 {
                     if (currentName.Length > 0)
                     {
-                        lastSymbol = evalName(currentName, lastSymbol);
+                        lastSymbol = new Symbol(currentName, lastSymbol,varNames);
                         lastSymbol.posStart = i - currentName.Length;
+                        symbols.Add(lastSymbol);
 
                         if (lastSymbol.code == 130)
                         {
                             correct = false;
                             errorMessage = "Unknown name '" + currentName + "'";
-                            errorIndex = lastSymbol.posStart;
+                            errorIdx1 = lastSymbol.posStart;
+                            errorIdx2 = lastSymbol.posEnd();
+
                             return;
                         }
 
-                        symbols.Add(lastSymbol);
+                        
                         currentName="";
                     }
 
                     if(f[i]!=' ') 
                     {
-                        lastSymbol = evalName(f[i].ToString(), lastSymbol);
+                        lastSymbol = new Symbol(f[i].ToString(), lastSymbol,varNames);
                         lastSymbol.posStart = i;
                         symbols.Add(lastSymbol);
                     }
@@ -267,9 +187,18 @@ namespace Aldyparen
                 {
                     correct = false;
                     errorMessage = "Unallowable symbol '" + f[i] + "'";
-                    errorIndex = i;
+                    errorIdx1 = errorIdx2 = i;
                     return;
                 }
+            }
+
+            if (symbols.Count == 0)
+            {
+                correct = false;
+                errorIdx1 = 0;
+                errorIdx2 = 0;
+                errorMessage = "Formula is empty";
+                return;
             }
 
             
@@ -301,7 +230,8 @@ namespace Aldyparen
                     if (stack.Count == 0)
                     {
                         errorMessage = "Invalid syntax";
-                        errorIndex = s.posStart;
+                        errorIdx1 = s.posStart;
+                        errorIdx2 = s.posEnd();
                         correct = false;
                         return;
                     }
@@ -338,7 +268,8 @@ namespace Aldyparen
                 if (!s.isOperator())
                 { 
                     errorMessage="Invalid syntax";
-                    errorIndex = s.posStart;
+                    errorIdx1 = s.posStart;
+                    errorIdx2 = s.posEnd();
                     correct =  false;
                     return;
                 }
@@ -365,7 +296,17 @@ namespace Aldyparen
                 {
                     correct = false;
                     errorMessage = "Extra operator";
-                    errorIndex = s.posStart;
+                    errorIdx1 = s.posStart;
+                    errorIdx2 = s.posEnd();
+                    return;
+                }
+
+                if (stackSize > MAX_STACK_SIZE)
+                {
+                    correct = false;
+                    errorMessage = "Too deep :(";
+                    errorIdx1= s.posStart;
+                    errorIdx2 = s.posEnd();
                     return;
                 }
             }
@@ -374,7 +315,7 @@ namespace Aldyparen
             {
                 correct = false;
                 errorMessage = "Invalid syntax";
-                errorIndex = f.Length-1;
+                errorIdx1= errorIdx2 = f.Length-2;
                 return;
             }
 
@@ -402,9 +343,27 @@ namespace Aldyparen
             correct = true;
         }
 
-        public void changeCoeff(int symbolNumber, float newValue)
-        { 
+
+
+        public String getText()
+        {
+            return text;
+        }
+
+        public Symbol getSymbol(int pos)
+        {
+            foreach (Symbol s in symbols)
+            {
+                if (s.posStart <= pos && s.posStart + s.content.Length - 1 >= pos) return s;
+            }
+            return null;
+        }
+
         
+
+        public bool isCorrect()
+        {
+            return correct;
         }
 
         public void addVariable(String name)
@@ -420,28 +379,32 @@ namespace Aldyparen
                 throw new Exception("Variable '" + name + "' already exists");
             }
 
-            if (varCount >= 64)
+            if (varNames.Count >= MAX_VARIABLES)
             {
                 throw new Exception("Cannot add variable. Maximum 64 variables allowed.");            
             }
 
-            varNames[name]=varCount++;
+
+            varNames[name]=varNames.Count;
         }
 
-        public void setVariable(String name, Complex value)
+       
+
+
+
+        public Complex eval(Dictionary<String,Complex> vars)
         {
-            if (!varNames.Keys.Contains(name))
+            foreach (KeyValuePair<String, Complex> entry in vars)
             {
-                throw new Exception("Variable '" + name + "' doesn't exist");
-            }
+                if (!varNames.Keys.Contains(entry.Key))
+                {
+                    throw new Exception("Variable '" + entry.Key + "' doesn't exist");
+                }
 
-            varValues[varNames[name]] = value;
-        }
+                varValues[varNames[entry.Key]] = entry.Value;
+            } 
+            
 
-
-
-        public Complex eval()
-        {
             Complex[] stack = new Complex[rpnFormula.Length];
             int sPtr=-1;
             int vPtr=0;
@@ -506,14 +469,7 @@ namespace Aldyparen
             return stack[0];
         }
 
-
-        [Cudafy]
-        private static ComplexF eval(ComplexF[] vars, byte[] formula, float[] koef)
-        {
-            ComplexF[] stack = new ComplexF[formula.Length];
-
-            return stack[0];
-        }
+      
 
     }
 }

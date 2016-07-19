@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using System.Numerics;
+
 namespace Aldyparen
 {
     class FunctionExample
@@ -16,12 +18,15 @@ namespace Aldyparen
             f.addVariable("z");
 
             f.setText("(x+y)*z+cos(0)/0.5^2");
-            f.setVariable("x", 1);
-            f.setVariable("y", 1);
-            f.setVariable("z", 3);
+
+            Dictionary<String, Complex> vars = new Dictionary<string, Complex>();
+            vars["x"] = 1;
+            vars["x"] = 1;
+            vars["x"] = 3;
 
 
-            Console.WriteLine("Result: {0}",f.eval());
+
+            Console.WriteLine("Result: {0}",f.eval(vars));
         }
     }
 }

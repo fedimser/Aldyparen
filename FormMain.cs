@@ -15,17 +15,18 @@ using System.IO;
 
 namespace Aldyparen
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
 
-        CLFrame curFrame;
+        public Frame curFrame;
+        public bool curFrameChanged = false;
 
-        CLFrame[] frames;
+        Frame[] frames;
         Color[] colors;
         int frame_counter=0; 
 
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
         }
@@ -38,17 +39,30 @@ namespace Aldyparen
         double ScreenScale;
 
 
+
+        //Settings
+        public bool realTimeApplying=false;
+        public bool isNowVideoSaving = false;
+        public string statusFrames = "";
+
+
         //Make animation
         private void button2_Click(object sender, EventArgs e)
         {
-            CLFrame f = lastFrame();
+
+            makeAnimation();
+        }
+
+        private void makeAnimation()
+        {
+            Frame f = lastFrame().clone();
             int S = (int)numericUpDownDiv.Value;
 
 
             for (int i = 1; i <= AnimLength; i++)
             {
-                f =  f.getMove(curFrame, 1.0 / ( AnimLength-i+1));
-                //f.moveColors(S);
+                f = f.getMove(curFrame, 1.0 / (AnimLength - i + 1));
+                f.moveColors(S);
 
                 frames[frame_counter] = f;
                 frame_counter++;
@@ -56,20 +70,19 @@ namespace Aldyparen
 
             pictureBox1.Image = lastFrame().getFrame(W1, H1);
 
-            curFrame = lastFrame().clone();
-            curFrameChanged = true;
-            
+            //curFrame = lastFrame().clone();
+            //curFrameChanged = true;
         }
 
 
-        private CLFrame lastFrame()
+        private Frame lastFrame()
         {
             return frames[frame_counter - 1];
         }
 
        
 
-        void addFrame(CLFrame f)
+        void addFrame(Frame f)
         {
             frames[frame_counter] = f;
             frame_counter++;
@@ -81,10 +94,10 @@ namespace Aldyparen
 
         void initWork()
         {
-            curFrame = new CLFrame();
+            curFrame = new Frame();
 
-            colors = new Color[1000];
-            for(int i=0;i<1000;i++)colors[i]=Color.White ;
+            colors = new Color[Frame.MAX_COLORS];
+            for (int i = 0; i < Frame.MAX_COLORS; i++) colors[i] = Color.White;
         }
 
         void startWork()
@@ -92,7 +105,7 @@ namespace Aldyparen
             ScreenScale = Math.Max(2.0 * W / pictureBox1.Width, 2.0 * H / pictureBox2.Height);
 
 
-            frames = new CLFrame[10000];
+            frames = new Frame[10000];
             frame_counter = 0;
              
             addFrame(curFrame.clone());            
@@ -118,13 +131,7 @@ namespace Aldyparen
         }
 
  
-          
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            resetTransform();
-        }
-
+           
         void resetTransform()
         {  
             curFrame.restoreTransform(lastFrame());
@@ -144,7 +151,6 @@ namespace Aldyparen
             curFrameChanged = false;
         }
 
-        bool curFrameChanged = false;
          
 
         private void pictureBox2_MouseWheel(object sender,MouseEventArgs e)
@@ -215,8 +221,14 @@ namespace Aldyparen
         #region "Video"
 
 
-        private void button1_Click(object sender, EventArgs e)
+        private void makeVideoClick()
         {
+            if (isNowVideoSaving)
+            {
+                MessageBox.Show("One video rendering in progress. Please wait.");
+                return;
+            }
+
             if (!Directory.Exists("Output\\Video"))
             {
                 Directory.CreateDirectory("Output\\Video");
@@ -235,7 +247,7 @@ namespace Aldyparen
             p.FPS = (int) numericUpDown5.Value;
 
             p.frameCount = frame_counter;
-            p.frames = new CLFrame[frame_counter];
+            p.frames = new Frame[frame_counter];
             
             for (int i = 0; i < frame_counter; i++)
             {
@@ -249,7 +261,7 @@ namespace Aldyparen
 
         public class VideoParameters
         {
-            public CLFrame[] frames;
+            public Frame[] frames;
             public int frameCount;
             public int halfWidth;
             public int halfHeight;
@@ -260,6 +272,7 @@ namespace Aldyparen
 
         private void makeVideo(object _param)
         {
+            isNowVideoSaving = true;
             photoThreadsCounter++;
 
             VideoParameters param = (VideoParameters)_param;
@@ -274,11 +287,14 @@ namespace Aldyparen
             {
                 wr.AddFrame(param.frames[i].getFrame(param.halfWidth, param.halfHeight));
                 Console.WriteLine("Frame {0} out of {1} is done!", i + 1, param.frameCount);
+                statusFrames = String.Format("{0}/{1}", i + 1, param.frameCount);
             }
 
             wr.Close();
 
-            photoThreadsCounter--;
+            photoThreadsCounter--; 
+            isNowVideoSaving = false;
+            statusFrames = "";
         }
 
         #endregion
@@ -328,35 +344,93 @@ namespace Aldyparen
                 refreshFrame();
             }
 
-            LabelThreads.Text = "Threads: " + photoThreadsCounter.ToString();
+            labelThreads.Text = "Threads: " + photoThreadsCounter.ToString();
 
             if (CudaPainter.enabled)
-                LabelCuda.Text = "CUDA Enabled";
+            {
+                if (CudaPainter.canRender(curFrame)  )
+                    LabelCuda.Text = "CUDA Enabled";
+                else
+                    LabelCuda.Text = "CUDA Enabled but cannot be used";
+            }
             else
+            {
                 LabelCuda.Text = "CUDA Disabled";
+            }
+            remove1FrameToolStripMenuItem.Enabled = (frame_counter > 1);           
+            remove10ToolStripMenuItem.Enabled = (frame_counter > 10);
 
-            button5.Enabled = (frame_counter > 1);
+            if(curFrame.genMode == Frame.GeneratingMode.Formula)
+            {
+                labelActiveFormula.Text = curFrame.param.genFunc.getText();
+            }
+            else
+            {
+                labelActiveFormula.Text = "";
+            }
+
+            labelFrames.Text = statusFrames;
+            labelStopwatch.Text = statusTimeInfo;
          }
 
+
+
         private void Form1_Load(object sender, EventArgs e)
-        {
-            initParamsMenu(); 
+        { 
             
             initWork();
-            comboBox1.SelectedIndex = 0;
+
+
+
+            curFrame = new Frame();
+            curFrame.genMode = Frame.GeneratingMode.Formula;
+            curFrame.param = new FrameParams(0, 100);
+            curFrame.param.genFunc = new Function(new String[2] { "c", "z" });
+            curFrame.param.genFunc.setText(textBoxFormula.Text);
+            curFrame.param.genInfty = 2;
+            curFrame.param.genSteps = 20;
+            curFrame.param.genInit = new Complex(0, 0);
+
+            setMapColor(0, Color.Black);
+            setMapColor(1, Color.White);
+
+
+            reset_values_list();
+
+
+             
+
+
+            ResetColorCounters(); 
+            setColors(curFrame);
+
+            /*
+            if (frames == null || (checkBox1.Checked == false)) startWork();
+            else
+            {
+                addFrame(curFrame.clone());
+                showLastFrame();
+            }*/
+
+
+            refreshFrame();
+
+
             startWork();
         }
+         
 
-        private void button6_Click(object sender, EventArgs e)
-        {
-            startWork();
-        }
-
-        private void button5_Click(object sender, EventArgs e)
+        private void removeLastFrame()
         {
             if (frame_counter <=1  ) return;
             frame_counter--;
+            showLastFrame();
+        }
 
+        private void removeLastTenFrames()
+        {
+            frame_counter-=10;
+            if (frame_counter < 1) frame_counter = 1;
             showLastFrame();
         }
 
@@ -365,39 +439,53 @@ namespace Aldyparen
             pictureBox1.Image = lastFrame().getFrame(W1, H1); 
         }
 
+       
+
+        /*
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            curFrame = new CLFrame();
+           
 
             if (comboBox1.SelectedIndex == 0)
-            { 
-                curFrame.dlgt = new CLFrame.Get_Pixel( FractalPainters.MandelbrotPainter);
+            {
+                curFrame = new Frame();
+                curFrame.genMode = Frame.GeneratingMode.Formula;
+                curFrame.param = new FrameParams(0, 20);
+                curFrame.param.genFunc = getFunction();
+                curFrame.param.genInfty = 2;
+                curFrame.param.genSteps = 20;
+                curFrame.param.genInit = new Complex(0, 0);
 
-                curFrame.param = new CLFrameParams(0, 2);
-                
+
+
+
                 setMapColor(0, Color.Black);
-                setMapColor(1,  Color.White);
+                setMapColor(1, Color.White);
             }
             else if (comboBox1.SelectedIndex == 1)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.CubeRootPainter); 
-                curFrame.param = new CLFrameParams(0,3);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.CubeRootPainter); 
+                curFrame.param = new FrameParams(0,3);
             }
             else if (comboBox1.SelectedIndex == 2)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.TetraRootPainter);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.TetraRootPainter);
               
-                curFrame.param = new CLFrameParams(0,40);
+                curFrame.param = new FrameParams(0,40);
             }
             else if (comboBox1.SelectedIndex == 3)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.DebugPainter);
-                curFrame.param = new CLFrameParams(4, 100);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.DebugPainter);
+                curFrame.param = new FrameParams(4, 100);
             }
             if (comboBox1.SelectedIndex == 4)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.Mandelbrot2Painter);
-                curFrame.param = new CLFrameParams(0, 256);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.Mandelbrot2Painter);
+                curFrame.param = new FrameParams(0, 256);
                 colors[255] = Color.Black;
                 for (int i = 0; i < 255; i++)
                 {
@@ -406,8 +494,9 @@ namespace Aldyparen
             }
             else if (comboBox1.SelectedIndex == 5)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.MandelBrotCubePainter);
-                curFrame.param = new CLFrameParams(0, 256);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.MandelBrotCubePainter);
+                curFrame.param = new FrameParams(0, 256);
                 colors[255] = Color.Black;
                 for (int i = 0; i < 255; i++)
                 {
@@ -416,8 +505,9 @@ namespace Aldyparen
             }
             else if (comboBox1.SelectedIndex == 6)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.GenericMandelbrotPainter);
-                curFrame.param = new CLFrameParams(1, 256);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.GenericMandelbrotPainter);
+                curFrame.param = new FrameParams(1, 256);
                 
                setMapColor(curFrame.param.maxUsedColors - 1, Color.Blue);
 
@@ -428,8 +518,9 @@ namespace Aldyparen
             }
             else if (comboBox1.SelectedIndex == 7)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.GenericMandelbrotPainter);
-                curFrame.param = new CLFrameParams(1, 20);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.GenericMandelbrotPainter);
+                curFrame.param = new FrameParams(1, 20);
                 setMapColor(curFrame.param.maxUsedColors - 1,Color.Blue);
 
                 setMapColor(0, Color.Black);
@@ -439,8 +530,9 @@ namespace Aldyparen
             } 
             else if (comboBox1.SelectedIndex == 8)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.MandelBrotTetraPainter);
-                curFrame.param = new CLFrameParams(0, 256);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.MandelBrotTetraPainter);
+                curFrame.param = new FrameParams(0, 256);
                 setMapColor(255, Color.Black);
                 for (int i = 0; i < 255; i++)
                 {
@@ -449,26 +541,30 @@ namespace Aldyparen
             }
             else if (comboBox1.SelectedIndex == 9)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.DzetaPainter);
-                curFrame.param = new CLFrameParams(0, 50);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.DzetaPainter);
+                curFrame.param = new FrameParams(0, 50);
             }
             else if (comboBox1.SelectedIndex == 10)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PolynomPainter2);
-                curFrame.param = new CLFrameParams(6, 50);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.PolynomPainter2);
+                curFrame.param = new FrameParams(6, 50);
                 makeGeoGradient(0, 49);
             }
             else if (comboBox1.SelectedIndex == 11)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PolynomPainter3);
-                curFrame.param = new CLFrameParams(10, 50);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.PolynomPainter3);
+                curFrame.param = new FrameParams(10, 50);
                 makeGeoGradient(0, 49);
             }
 
             else if (comboBox1.SelectedIndex == 12)
             {
-                curFrame.dlgt = new CLFrame.Get_Pixel(FractalPainters.PolynomPainterAlt);
-                curFrame.param = new CLFrameParams(10, 50);
+                curFrame.genMode = Frame.GeneratingMode.Delegate;
+                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.PolynomPainterAlt);
+                curFrame.param = new FrameParams(10, 50);
                 makeGeoGradient(0, 49);
             }
 
@@ -494,9 +590,11 @@ namespace Aldyparen
 
             refreshFrame();
         }
+         * 
+         * */
 
 
-        private void setColors(CLFrame f)
+        private void setColors(Frame f)
         {
             for (int i = 0; i < f.param.maxUsedColors; i++)
             {
@@ -506,7 +604,7 @@ namespace Aldyparen
             curFrameChanged = true;
         }
 
-
+        /*
         #region "Params menu"
 
 
@@ -584,7 +682,7 @@ namespace Aldyparen
         }
 
         #endregion
-
+        */
 
 
         #region "Color map"
@@ -710,7 +808,7 @@ namespace Aldyparen
 
         public class photoParameters
         { 
-           public  CLFrame _frame;
+           public  Frame _frame;
            public int _W;
            public int _H;
            public string path;
@@ -720,13 +818,19 @@ namespace Aldyparen
         }
 
         private int photoThreadsCounter = 0;
+        private string statusTimeInfo = "";
 
         private void makePhoto(object _param)
         {
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
             photoThreadsCounter++;
             
             photoParameters param = (photoParameters)_param;
             Bitmap bmp = param._frame.getFrame(param._W, param._H);
+
+            if (bmp == null) return;
 
             if (param.label.Length > 0)
             {
@@ -737,14 +841,16 @@ namespace Aldyparen
                 g.DrawString(String.Format("Pos:({0:e5};{1:e5}).Width:{2:e5}", param._frame.ctr.Real, param._frame.ctr.Imaginary, 2 * param._frame.scale), new Font("Consolas", 10), Brushes.Gray, new PointF(0, 11));
             }
 
+            
             bmp.Save(param.path,param.format);
 
             photoThreadsCounter--;
+
+            statusTimeInfo = sw.ElapsedMilliseconds.ToString() + "ms";
         }
 
-        private void button9_Click(object sender, EventArgs e)
+        private void makePhotoClick()
         { 
-
             string path="p.jpg";
 
             if (checkBox2.Checked)
@@ -779,7 +885,7 @@ namespace Aldyparen
                 }
             }
 
-            CLFrame fr = curFrame.clone();
+            Frame fr = curFrame.clone();
             
 
             string label = "";
@@ -792,8 +898,8 @@ namespace Aldyparen
 
             photoParameters param=new photoParameters();
             param._frame= fr;
-            param._W=(int)numericUpDown4.Value;
-            param._H= (int)numericUpDown3.Value;
+            param._W=(int)numericUpDown4.Value/2;
+            param._H= (int)numericUpDown3.Value/2;
             param.path = path;
             param.label=label;
 
@@ -826,7 +932,7 @@ namespace Aldyparen
             var f2 = new Form2();
 
 
-            CLFrame fr = curFrame.clone();
+            Frame fr = curFrame.clone();
 
             Bitmap tb  = fr.getFrame(640/2, 480/2);
             f2.MultVector = new byte[640 * 480];
@@ -857,7 +963,7 @@ namespace Aldyparen
             textBox1.Enabled = checkBox3.Checked;
         }
 
-        private void button13_Click(object sender, EventArgs e)
+        private void setArea()
         {
             double _ctr1=0, _ctr2=0, _scl=0;
 
@@ -882,20 +988,9 @@ namespace Aldyparen
         }
 
 
+ 
 
-        //append
-        private void button8_Click(object sender, EventArgs e)
-        {
-            addFrame(curFrame.clone());
-        }
-
-
-        //replace    
-        private void button11_Click_1(object sender, EventArgs e)
-        {
-            frame_counter--;
-            addFrame(curFrame.clone());
-        }
+ 
 
         private void cUDASettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -907,28 +1002,175 @@ namespace Aldyparen
         {
             Function f = new Function();
             f.addVariable("x");
-            f.setVariable("x", 1);
-            f.setText(textBox2.Text);
 
-            if (f.correct)
+            Dictionary<String, Complex> vars = new Dictionary<string, Complex>();
+            vars["x"] = new Complex(14, 88);
+
+            f.setText(textBoxFormula.Text);
+
+            if (f.isCorrect())
             {
-                label4.Text = f.eval().ToString();
+                labelActiveFormula.Text = f.eval(vars).ToString();
             }
             else
             {
-                label4.Text = f.errorMessage + " " + f.errorIndex;
+                labelActiveFormula.Text = f.errorMessage;
             }
         }
+
+
+        public void paintText(RichTextBox tb, Color clr, int start, int end)
+        { 
+            int cp = tb.SelectionStart;
+            tb.Select(start, end - start + 1);
+            tb.SelectionColor = clr;
+            tb.DeselectAll();
+            tb.SelectionStart = cp;
+        }
+
+        public void paintText(RichTextBox tb, Color clr)
+        {
+            int cp = tb.SelectionStart;
+            tb.SelectAll();
+            tb.SelectionColor = clr;
+            tb.DeselectAll();
+            tb.SelectionStart = cp;
+        }
+
+
+        public void refreshFormula()
+        {
+            Function f = new Function(new String[2] { "c", "z" });
+            f.setText(textBoxFormula.Text);
+             
+
+            if (f.isCorrect())
+            {
+                int cp = textBoxFormula.SelectionStart;
+                labelFormulaError.Text = "";
+                curFrame.param.genFunc = f;
+                curFrameChanged = true;
+                textBoxFormula.Text = f.getText();
+                textBoxFormula.SelectionStart = cp;
+            }
+            else
+            {
+                labelFormulaError.Text = f.errorMessage;                 
+                paintText(textBoxFormula, Color.Red, f.errorIdx1,f.errorIdx2);
+            } 
+        }
+
+        private void textBoxFormula_TextChanged(object sender, EventArgs e)
+        {
+            paintText(textBoxFormula, Color.Black);
+            if (realTimeApplying) refreshFormula();             
+        }
+
+        private void button12_Click_1(object sender, EventArgs e)
+        {
+            refreshFormula();
+        }
+
+        private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var f = new FormSettings();
+            f.formMain = this;
+            f.ShowDialog();
+        }
+
+        private void classicMandelbrotSetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            textBoxFormula.Text = "z*z+c";
+            refreshFormula();
+        }
+
+        const String gen_pn_2 = "1*z*z+1*z*c+1*c*c+1*z+1*c+1";
+        const String gen_pn_3 = "1*z*z*z+1*z*z*c+1*z*c*c+1*c*c*c*c+1*z*z+1*z*c+1*c*c+1*z+1*c+1";
+
+
+        private void polynom2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            textBoxFormula.Text = gen_pn_2;
+            refreshFormula();
+        }
+
+        private void polynom3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            textBoxFormula.Text = gen_pn_3;
+            refreshFormula();
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            startWork();
+        }
+
+        private void appendToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            addFrame(curFrame.clone());
+        }
+
+        private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frame_counter--;
+            addFrame(curFrame.clone());
+        }
+
+        private void remove1FrameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            removeLastFrame();
+        }
+
+        private void remove10ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            removeLastTenFrames();
+        }
+
+        private void makeAnimationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            makeAnimation();
+        }
+
+        private void setToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            setArea();
+        }
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            resetTransform();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            makeVideoClick();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            makePhotoClick();
+        }
+
+        private void makeVideoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            makeVideoClick();
+        }
+
+        private void makePhotoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            makePhotoClick();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Aldyparen " + Application.ProductVersion + "\n" + "© Dmitriy Fedoriaka, 2015-2016");
+        }
+
+        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("You can get manual on the page of the project: http://fedimser.github.io/aldyparen.html");
+        } 
          
-
-
-
-
-
-
-
-
-
 
     }
 }

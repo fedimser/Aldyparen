@@ -12,7 +12,7 @@ namespace Aldyparen
         const double eps = 1e-9;  
 
 
-       public static int CubeRootPainter(Complex z0,  CLFrameParams p)
+       public static int CubeRootPainter(Complex z0,  FrameParams p)
         {
             Complex z = z0;
             for (int i = 0; i < 100; i++)
@@ -30,7 +30,7 @@ namespace Aldyparen
             return 0;
         }
 
-       public static int TetraRootPainter(Complex z0,  CLFrameParams p)
+       public static int TetraRootPainter(Complex z0,  FrameParams p)
         {
             Complex z = z0;
             for (int i = 0; i < 100; i++)
@@ -52,7 +52,7 @@ namespace Aldyparen
             return 0;
         }
 
-       public static int MandelbrotPainter(Complex c, CLFrameParams p)
+       public static int MandelbrotPainter(Complex c, FrameParams p)
         {
             //Check Cardioid
             double r = Math.Sqrt((c.Real - 0.25) * (c.Real - 0.25) + c.Imaginary * c.Imaginary);
@@ -68,7 +68,7 @@ namespace Aldyparen
             return 0;
         }
 
-       public static int Mandelbrot2Painter(Complex c,  CLFrameParams p)
+       public static int Mandelbrot2Painter(Complex c,  FrameParams p)
         {
             //Check Cardioid
             double r = Math.Sqrt((c.Real - 0.25) * (c.Real - 0.25) + c.Imaginary * c.Imaginary);
@@ -84,7 +84,7 @@ namespace Aldyparen
             return 255;
         }
 
-       public static int MandelBrotCubePainter(Complex c,  CLFrameParams p)
+       public static int MandelBrotCubePainter(Complex c,  FrameParams p)
         {
 
             Complex z = 0;
@@ -98,7 +98,7 @@ namespace Aldyparen
 
 
 
-       public static int MandelBrotTetraPainter(Complex c,  CLFrameParams p)
+       public static int MandelBrotTetraPainter(Complex c,  FrameParams p)
         {
 
             Complex z = 0;
@@ -111,7 +111,7 @@ namespace Aldyparen
         }
 
 
-       public static int GenericMandelbrotPainter(Complex c,  CLFrameParams p)
+       public static int GenericMandelbrotPainter(Complex c,  FrameParams p)
         {
             int M = p.maxUsedColors - 1;
 
@@ -124,7 +124,7 @@ namespace Aldyparen
             return M;
         }
 
-       public static int DebugPainter(Complex c,  CLFrameParams p)
+       public static int DebugPainter(Complex c,  FrameParams p)
         {
 
             Complex z = c;
@@ -137,14 +137,14 @@ namespace Aldyparen
 
         }
 
-       public static int DzetaPainter(Complex c,  CLFrameParams p)
+       public static int DzetaPainter(Complex c,  FrameParams p)
         {
 
             return 0;
 
         }
 
-        public static int PolynomPainter2(Complex c, CLFrameParams p)
+        public static int PolynomPainter2(Complex c, FrameParams p)
         {
             int M = p.maxUsedColors - 1;
 
@@ -158,7 +158,7 @@ namespace Aldyparen
         }
 
 
-       public static int PolynomPainter3(Complex c, CLFrameParams p)
+       public static int PolynomPainter3(Complex c, FrameParams p)
        {
            int M = p.maxUsedColors - 1;
 
@@ -173,7 +173,7 @@ namespace Aldyparen
            return M;
        }
 
-       public static int PolynomPainterAlt(Complex c, CLFrameParams p)
+       public static int PolynomPainterAlt(Complex c, FrameParams p)
        {
            int M = p.maxUsedColors - 1;
 
