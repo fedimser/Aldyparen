@@ -902,6 +902,23 @@ namespace Aldyparen
             var f = new FormCudaSettings();
             f.ShowDialog();
         }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            Function f = new Function();
+            f.addVariable("x");
+            f.setVariable("x", 1);
+            f.setText(textBox2.Text);
+
+            if (f.correct)
+            {
+                label4.Text = f.eval().ToString();
+            }
+            else
+            {
+                label4.Text = f.errorMessage + " " + f.errorIndex;
+            }
+        }
          
 
 

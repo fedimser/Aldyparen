@@ -77,6 +77,7 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.LabelThreads = new System.Windows.Forms.ToolStripStatusLabel();
+            this.LabelCuda = new System.Windows.Forms.ToolStripStatusLabel();
             this.groupBoxParams = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -85,7 +86,9 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cUDASettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.LabelCuda = new System.Windows.Forms.ToolStripStatusLabel();
+            this.button12 = new System.Windows.Forms.Button();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -687,6 +690,13 @@
             this.LabelThreads.Size = new System.Drawing.Size(93, 25);
             this.LabelThreads.Text = "Threads: 0";
             // 
+            // LabelCuda
+            // 
+            this.LabelCuda.Image = global::Aldyparen.Properties.Resources.nvidiaLogo;
+            this.LabelCuda.Name = "LabelCuda";
+            this.LabelCuda.Size = new System.Drawing.Size(195, 25);
+            this.LabelCuda.Text = "toolStripStatusLabel1";
+            // 
             // groupBoxParams
             // 
             this.groupBoxParams.Location = new System.Drawing.Point(332, 536);
@@ -770,18 +780,40 @@
             this.cUDASettingsToolStripMenuItem.Text = "CUDA Settings...";
             this.cUDASettingsToolStripMenuItem.Click += new System.EventHandler(this.cUDASettingsToolStripMenuItem_Click);
             // 
-            // LabelCuda
+            // button12
             // 
-            this.LabelCuda.Image = global::Aldyparen.Properties.Resources.nvidiaLogo;
-            this.LabelCuda.Name = "LabelCuda";
-            this.LabelCuda.Size = new System.Drawing.Size(195, 25);
-            this.LabelCuda.Text = "toolStripStatusLabel1";
+            this.button12.Location = new System.Drawing.Point(518, 732);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(238, 81);
+            this.button12.TabIndex = 69;
+            this.button12.Text = "TEST";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(518, 693);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(238, 26);
+            this.textBox2.TabIndex = 70;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(514, 824);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(51, 20);
+            this.label4.TabIndex = 71;
+            this.label4.Text = "label4";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1294, 921);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.button12);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox2);
@@ -893,6 +925,9 @@
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cUDASettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel LabelCuda;
+        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label4;
     }
 }
 

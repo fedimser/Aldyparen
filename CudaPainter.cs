@@ -158,7 +158,16 @@ namespace Aldyparen
         }
 
 
-        [Cudafy]private static int Mandelbrot(ComplexF  c)
+        [Cudafy]
+        private static ComplexF eval(ComplexF[] vars, int[] formula, float[] koef)
+        {
+            ComplexF[] stack = new ComplexF[formula.Length];
+
+            return stack[0];
+        }
+
+        [Cudafy]
+        private static int Mandelbrot(ComplexF  c)
         {
           //DEBUG = MANDELBROT
             float r = Cudafy.GMath.Sqrt((c.x - 0.25F) * (c.x - 0.25F) + c.y * c.y);
