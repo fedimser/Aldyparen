@@ -61,7 +61,7 @@ namespace Aldyparen
 
         public static String[] reserved = new String[]
         {"i","pi","sin","cos","tg","ctg","abs","re","im","arg","arcsin",
-            "arccos","arctg","arcctg","exp","lg","sh","ch","th","cth","e","sqrt"};
+            "arccos","arctg","arcctg","exp","ln","sh","ch","th","cth","e","sqrt"};
          
         public List<Symbol> symbols;
         public Dictionary<String, int> varNames = new Dictionary<String, int>();
@@ -388,26 +388,13 @@ namespace Aldyparen
             varNames[name]=varNames.Count;
         }
 
-       
 
 
-
-        public Complex eval(Dictionary<String,Complex> vars)
+        public Complex eval()
         {
-            foreach (KeyValuePair<String, Complex> entry in vars)
-            {
-                if (!varNames.Keys.Contains(entry.Key))
-                {
-                    throw new Exception("Variable '" + entry.Key + "' doesn't exist");
-                }
-
-                varValues[varNames[entry.Key]] = entry.Value;
-            } 
-            
-
             Complex[] stack = new Complex[rpnFormula.Length];
-            int sPtr=-1;
-            int vPtr=0;
+            int sPtr = -1;
+            int vPtr = 0;
 
             for (int i = 0; i < rpnFormula.Length; i++)
             {
@@ -467,6 +454,21 @@ namespace Aldyparen
             }
 
             return stack[0];
+        }
+
+        public Complex eval(Dictionary<String,Complex> vars)
+        {
+            foreach (KeyValuePair<String, Complex> entry in vars)
+            {
+                if (!varNames.Keys.Contains(entry.Key))
+                {
+                    throw new Exception("Variable '" + entry.Key + "' doesn't exist");
+                }
+
+                varValues[varNames[entry.Key]] = entry.Value;
+            }
+
+            return eval();           
         }
 
       

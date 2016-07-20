@@ -69,7 +69,7 @@ namespace Aldyparen
             else if (name == "e"){ code = 0; value =   new Complex(Math.E, 0);}
             else if (name == "pi") { code = 0; value = new Complex(Math.PI, 0); }
 
-            else if (name == "lg") code = 6;
+            else if (name == "ln") code = 6;
             else if (name == "exp") code = 7;
             else if (name == "sin") code = 8;
             else if (name == "cos") code = 9;

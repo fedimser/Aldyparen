@@ -182,7 +182,7 @@ namespace Aldyparen
                 //Calling main routine
                 dim3 gs = new dim3(2 * W, 2 * H);
                 int N = frame.param.genFunc.rpnFormula.Length;
-                gpu.Launch(gs, 1).setPixelFuck(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (float)frame.rotation, (float)frame.scale, new ComplexF((float)frame.ctr.Real, (float)frame.ctr.Imaginary), new ComplexF((float)frame.param.genInit.Real, (float)frame.param.genInit.Imaginary), (float)frame.param.genInfty,frame.param.genSteps);
+                gpu.Launch(gs, 1).setPixel(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (float)frame.rotation, (float)frame.scale, new ComplexF((float)frame.ctr.Real, (float)frame.ctr.Imaginary), new ComplexF((float)frame.param.genInit.Real, (float)frame.param.genInit.Imaginary), (float)frame.param.genInfty,frame.param.genSteps);
 
                 gpu.CopyFromDevice(dev_b, b);
 
@@ -250,7 +250,7 @@ namespace Aldyparen
 
 
         [Cudafy]
-        private static void setPixelFuck(GThread thread, int W, int H, int rpnLength,byte[] bmp, byte[] colorMap,ComplexF[] stackMem, byte[] rpnFormula, ComplexF[] rpnKoef ,float rotation, float scale, ComplexF ctr,ComplexF init,float infty,int steps )
+        private static void setPixel(GThread thread, int W, int H, int rpnLength,byte[] bmp, byte[] colorMap,ComplexF[] stackMem, byte[] rpnFormula, ComplexF[] rpnKoef ,float rotation, float scale, ComplexF ctr,ComplexF init,float infty,int steps )
         {
             int x = thread.blockIdx.x;
             int y = thread.blockIdx.y;
@@ -448,33 +448,29 @@ namespace Aldyparen
             ComplexF x1 = new ComplexF(-c.y, c.x);
             ComplexF one = new ComplexF(1, 0);
             ComplexF x2 = sqrt(ComplexF.Subtract(one, ComplexF.Multiply(c, c)));
-
-            ComplexF minusImagOne = new ComplexF(0, -1);
-            return ComplexF.Multiply(minusImagOne, log(ComplexF.Add(x1, x2)));
+             
+            return ComplexF.Multiply(new ComplexF(0, -1), log(ComplexF.Add(x1, x2)));
         }
 
         [Cudafy]
         private static ComplexF arccos(ComplexF c)
         {
-            ComplexF one = new ComplexF(1, 0);
-            ComplexF x2 = sqrt(ComplexF.Subtract(ComplexF.Multiply(c, c), one));
-
-            ComplexF minusImagOne = new ComplexF(0, -1);
-            return ComplexF.Multiply(minusImagOne, log(ComplexF.Add(c, x2)));
+            ComplexF t = arcsin(c);
+            return  new ComplexF(0.5F*3.1415926535F-t.x,-t.y);
         }
 
         [Cudafy]
         private static ComplexF arctg(ComplexF c)
-        {
-            ComplexF one = new ComplexF(1, 0);
-            return one;
+        { 
+            ComplexF x = ComplexF.Divide(new ComplexF(1-c.y, c.x), new ComplexF(1+c.y,-c.x));
+            return ComplexF.Multiply(new ComplexF(0F, -0.5F), log(x));
         }
 
         [Cudafy]
         private static ComplexF arcctg(ComplexF c)
         {
-            ComplexF one = new ComplexF(1, 0);
-            return one;
+            ComplexF t = arctg(c);
+            return new ComplexF(1F * 3.1415926535F - t.x, -t.y);
         }
 
 

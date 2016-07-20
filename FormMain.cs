@@ -32,8 +32,8 @@ namespace Aldyparen
         }
              
         int W,H;
-        int W1 = 80;
-        int H1 = 60;
+        int W1 = 160;
+        int H1 = 90;
         int FPS;
         int AnimLength;
         double ScreenScale;
@@ -1169,7 +1169,8 @@ namespace Aldyparen
         private void manualToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("You can get manual on the page of the project: http://fedimser.github.io/aldyparen.html");
-        } 
+        }
+         
          
 
     }
