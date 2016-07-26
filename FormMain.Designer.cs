@@ -448,7 +448,7 @@
             this.numericUpDown3.Location = new System.Drawing.Point(147, 22);
             this.numericUpDown3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDown3.Maximum = new decimal(new int[] {
-            2000,
+            10000,
             0,
             0,
             0});
@@ -466,7 +466,7 @@
             this.numericUpDown4.Location = new System.Drawing.Point(55, 22);
             this.numericUpDown4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDown4.Maximum = new decimal(new int[] {
-            2000,
+            10000,
             0,
             0,
             0});

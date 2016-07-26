@@ -24,6 +24,7 @@ namespace Aldyparen
         private static GPGPU gpu;
         public static bool enabled = false;
         public static bool corrupted = false;
+        public static bool rowScan = false;
  
         public static String errorMessage;
 
@@ -114,7 +115,7 @@ namespace Aldyparen
 
             if (corrupted)
             {
-                throw new Exception("You must to restart application id you want to use CUDA!");
+                throw new Exception("You must restart application id you want to use CUDA!");
             }
 
             try
@@ -155,19 +156,19 @@ namespace Aldyparen
                 gpu.CopyToDevice(frame.param.genFunc.rpnFormula, dev_rpnFormula);
 
                 int cnt = frame.param.genFunc.rpnKoef.Length;
-                ComplexF[] rpnKoef = new ComplexF[cnt];
+                ComplexD[] rpnKoef = new ComplexD[cnt];
                 for (int i = 0; i < cnt; i++)
                 {
-                    rpnKoef[i] = makeComplexFFromNet(frame.param.genFunc.rpnKoef[i]);
+                    rpnKoef[i] = makeComplexDFromNet(frame.param.genFunc.rpnKoef[i]);
                 }
 
                 if (cnt == 0)
                 {
                     cnt = 1;
-                    rpnKoef = new ComplexF[1] { new ComplexF(0, 0) };
+                    rpnKoef = new ComplexD[1] { new ComplexD(0, 0) };
                 }
 
-                ComplexF[] dev_rpnKoef = gpu.Allocate<ComplexF>(cnt);
+                ComplexD[] dev_rpnKoef = gpu.Allocate<ComplexD>(cnt);
 
                 gpu.CopyToDevice(rpnKoef, dev_rpnKoef);
 
@@ -175,15 +176,26 @@ namespace Aldyparen
 
 
                 //Allocating memory for stacks
-                ComplexF[] dev_stackMem = gpu.Allocate<ComplexF>(4 * W * H * Function.MAX_STACK_SIZE);
+                ComplexD[] dev_stackMem = gpu.Allocate<ComplexD>(4 * W * H * Function.MAX_STACK_SIZE);
 
 
                  
                 //Calling main routine
-                dim3 gs = new dim3(2 * W, 2 * H);
                 int N = frame.param.genFunc.rpnFormula.Length;
-                gpu.Launch(gs, 1).setPixel(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (float)frame.rotation, (float)frame.scale, new ComplexF((float)frame.ctr.Real, (float)frame.ctr.Imaginary), new ComplexF((float)frame.param.genInit.Real, (float)frame.param.genInit.Imaginary), (float)frame.param.genInfty,frame.param.genSteps);
+                dim3 gs = new dim3(2 * W, 2 * H);
 
+                if (rowScan)
+                {
+                    gs = new dim3(2*W, 1);
+                    for (int y = 0; y < 2*H; y++)
+                    {
+                        gpu.Launch(gs, 1).setPixel(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, y);
+                    }
+                }
+                else
+                {
+                    gpu.Launch(gs, 1).setPixel(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, 0);
+                }
                 gpu.CopyFromDevice(dev_b, b);
 
 
@@ -196,7 +208,7 @@ namespace Aldyparen
                 gpu.Free(dev_stackMem);
 
 
-
+                //saving picture
                 int W2 = W * 2;
                 int H2 = H * 2;
                 Bitmap bmp = new Bitmap(W2, H2, PixelFormat.Format24bppRgb);
@@ -227,22 +239,21 @@ namespace Aldyparen
 
             
         }
-       
-
+         
 
         [Cudafy]
-        private static int Mandelbrot(ComplexF c)
+        private static int Mandelbrot(ComplexD c)
         {
             //DEBUG = MANDELBROT
-            float r = Cudafy.GMath.Sqrt((c.x - 0.25F) * (c.x - 0.25F) + c.y * c.y);
-            float t = Cudafy.GMath.Atan2(c.y, c.x);
-            if (r <= 0.5 * (1 - Cudafy.GMath.Cos(t))) return 0;
+            double r =  Cudafy.GMath.Sqrt((float)((c.x - 0.25F) * (c.x - 0.25F) + c.y * c.y));
+            double t = Cudafy.GMath.Atan2((float)c.y, (float)c.x);
+            if (r <= 0.5 * (1 - Cudafy.GMath.Cos((float)t))) return 0;
              
 
-            ComplexF z = new ComplexF(0,0);
+            ComplexD z = new ComplexD(0,0);
             for (int i = 0; i < 200; i++)
             {
-                z = ComplexF.Add(ComplexF.Multiply( z ,z), c);
+                z = ComplexD.Add(ComplexD.Multiply( z ,z), c);
                 if (z.x * z.x + z.y * z.y > 4) return 1;
             }
             return 0;
@@ -250,51 +261,43 @@ namespace Aldyparen
 
 
         [Cudafy]
-        private static void setPixel(GThread thread, int W, int H, int rpnLength,byte[] bmp, byte[] colorMap,ComplexF[] stackMem, byte[] rpnFormula, ComplexF[] rpnKoef ,float rotation, float scale, ComplexF ctr,ComplexF init,float infty,int steps )
+        private static void setPixel(GThread thread, int W, int H,int rpnLength,byte[] bmp, byte[] colorMap,ComplexD[] stackMem,
+            byte[] rpnFormula, ComplexD[] rpnKoef ,double rotation, 
+            double scale, ComplexD ctr,ComplexD init,double infty,int steps,
+            int offsetY)
         {
             int x = thread.blockIdx.x;
-            int y = thread.blockIdx.y;
-            int idx = x + 2 * W * y; 
-             
-            ComplexF c1 = new ComplexF(Cudafy.GMath.Cos( rotation), Cudafy.GMath.Sin( rotation)); 
-            ComplexF c2 = new ComplexF((x - W) * (scale / W), (y - H) * (scale / W)) ;
-            ComplexF c = ComplexF.Add(  ComplexF.Multiply(c1,c2), ctr);
+            int y = thread.blockIdx.y+offsetY;
+            int idx = x + 2 * W * y;
+
+            ComplexD c1 = new ComplexD(Cudafy.GMath.Cos((float)rotation), Cudafy.GMath.Sin((float)rotation)); 
+            ComplexD c2 = new ComplexD((x - W) * (scale / W), (y - H) * (scale / W)) ;
+            ComplexD c = ComplexD.Add(  ComplexD.Multiply(c1,c2), ctr);
 
 
-            int clr = getSequenceDivergence(c, rpnLength, rpnFormula, rpnKoef, init, infty, steps, stackMem, Function.MAX_STACK_SIZE * idx); 
-             
+            int clr = getSequenceDivergence(c, rpnLength, rpnFormula, rpnKoef, init, infty, steps, stackMem, Function.MAX_STACK_SIZE * idx);
+           
 
 
             bmp[3 * idx] = colorMap[3 * clr];
             bmp[3 * idx + 1] = colorMap[3 * clr+1];
             bmp[3 * idx + 2] = colorMap[3 * clr+2];      
         }
-        /*
-        [Cudafy]
-        private static void setPixel(GThread thread, int W, int H, 
-            float rotation, float scale, ComplexF ctr, ComplexF init, float infty, int steps,
-            byte[] bmp, byte[] colorMap,
-            int rpnLength, byte[] rpnFormula, ComplexF[] rpnKoef,ComplexF[] stackMem)
-        { 
-            
-            //int clr =   getSequenceDivergence(c, rpnLength, rpnFormula, rpnKoef, init, infty, steps, stackMem, Function.MAX_STACK_SIZE * idx); 
-             
-            
-        }*/
+ 
 
 
 
-        private static ComplexF makeComplexFFromNet(Complex x)
+        private static ComplexD makeComplexDFromNet(Complex x)
         {
-            return new ComplexF((float)x.Real, (float)x.Imaginary);
+            return new ComplexD((double)x.Real, (double)x.Imaginary);
         }
 
          
         [Cudafy]
-        private static int getSequenceDivergence(ComplexF c, int rpnLength, byte[] rpnFormula, ComplexF[] rpnKoef,
-            ComplexF init, float infty, int steps, ComplexF[] stackMem, int stackOffset)
+        private static int getSequenceDivergence(ComplexD c, int rpnLength, byte[] rpnFormula, ComplexD[] rpnKoef,
+            ComplexD init, double infty, int steps, ComplexD[] stackMem, int stackOffset)
         { 
-            ComplexF z = init; 
+            ComplexD z = init; 
             for (int i = steps - 1; i >= 1; i--)
             { 
                 z = eval(rpnLength, rpnFormula, rpnKoef, c, z, stackMem, stackOffset);
@@ -311,173 +314,173 @@ namespace Aldyparen
 
 
         [Cudafy]
-        private static float abs(ComplexF c)
+        private static double abs(ComplexD c)
         {
-            return Cudafy.GMath.Sqrt(c.x * c.x + c.y * c.y);
+            return Cudafy.GMath.Sqrt((float)(c.x * c.x + c.y * c.y));
         }
 
         [Cudafy]
-        private static float arg(ComplexF c)
+        private static double arg(ComplexD c)
         {
-            return Cudafy.GMath.Atan2(c.y, c.x);
+            return Cudafy.GMath.Atan2((float)c.y, (float)c.x);
         }
 
         [Cudafy]
-        private static ComplexF makeComplexF(float _abs, float _arg)
+        private static ComplexD makeComplexD(double _abs, double _arg)
         {
-            return new ComplexF(_abs * Cudafy.GMath.Cos(_arg), _abs * Cudafy.GMath.Sin(_arg));
+            return new ComplexD(_abs * Cudafy.GMath.Cos((float)_arg), _abs * Cudafy.GMath.Sin((float)_arg));
         }
 
         [Cudafy]
-        private static ComplexF eIPhi(float phi)
+        private static ComplexD eIPhi(double phi)
         {
-            return new ComplexF(Cudafy.GMath.Cos(phi), Cudafy.GMath.Sin(phi));
+            return new ComplexD(Cudafy.GMath.Cos((float)phi), Cudafy.GMath.Sin((float)phi));
         }
 
         [Cudafy]
-        private static ComplexF exp(ComplexF c)
+        private static ComplexD exp(ComplexD c)
         {
-            return makeComplexF(Cudafy.GMath.Exp(c.x), c.y);
+            return makeComplexD(Cudafy.GMath.Exp((float)c.x), c.y);
         }
 
 
         [Cudafy]
-        private static ComplexF log(ComplexF c)
+        private static ComplexD log(ComplexD c)
         {
-            return new ComplexF(Cudafy.GMath.Log(abs(c)), arg(c));
+            return new ComplexD(Cudafy.GMath.Log((float)abs(c)), arg(c));
         }
 
         [Cudafy]
-        private static ComplexF sin(ComplexF c)
+        private static ComplexD sin(ComplexD c)
         {
-            ComplexF ic = new ComplexF(-c.x, c.y);       //ic
-            ComplexF mic = new ComplexF(c.x, -c.y);     //-c
+            ComplexD ic = new ComplexD(-c.x, c.y);       //ic
+            ComplexD mic = new ComplexD(c.x, -c.y);     //-c
 
-            ComplexF t = ComplexF.Subtract(exp(ic), exp(mic));
-            return new ComplexF(t.x / 2, t.y / 2);
+            ComplexD t = ComplexD.Subtract(exp(ic), exp(mic));
+            return new ComplexD(t.x / 2, t.y / 2);
         }
 
         [Cudafy]
-        private static ComplexF cos(ComplexF c)
+        private static ComplexD cos(ComplexD c)
         {
-            ComplexF ic = new ComplexF(-c.x, c.y);       //ic
-            ComplexF mic = new ComplexF(c.x, -c.y);     //-c
+            ComplexD ic = new ComplexD(-c.x, c.y);       //ic
+            ComplexD mic = new ComplexD(c.x, -c.y);     //-c
 
-            ComplexF t = ComplexF.Add(exp(ic), exp(mic));
-            return new ComplexF(t.x / 2, t.y / 2);
+            ComplexD t = ComplexD.Add(exp(ic), exp(mic));
+            return new ComplexD(t.x / 2, t.y / 2);
         }
 
         [Cudafy]
-        private static ComplexF tg(ComplexF c)
+        private static ComplexD tg(ComplexD c)
         {
-            ComplexF sn = sin(c);
-            ComplexF cs = cos(c);
+            ComplexD sn = sin(c);
+            ComplexD cs = cos(c);
 
-            if (cs.x == 0 && cs.y == 0) return new ComplexF(1e37F, 0);
-            return ComplexF.Divide(sn, cs);
+            if (cs.x == 0 && cs.y == 0) return new ComplexD(1e37F, 0);
+            return ComplexD.Divide(sn, cs);
         }
 
         [Cudafy]
-        private static ComplexF ctg(ComplexF c)
+        private static ComplexD ctg(ComplexD c)
         {
-            ComplexF sn = sin(c);
-            ComplexF cs = cos(c);
+            ComplexD sn = sin(c);
+            ComplexD cs = cos(c);
 
-            if (sn.x == 0 && sn.y == 0) return new ComplexF(1e37F, 0);
-            return ComplexF.Divide(cs, sn);
+            if (sn.x == 0 && sn.y == 0) return new ComplexD(double.MaxValue, 0);
+            return ComplexD.Divide(cs, sn);
         }
 
         [Cudafy]
-        private static ComplexF th(ComplexF c)
+        private static ComplexD th(ComplexD c)
         {
-            ComplexF sn = sh(c);
-            ComplexF cs = ch(c);
+            ComplexD sn = sh(c);
+            ComplexD cs = ch(c);
 
-            if (cs.x == 0 && cs.y == 0) return new ComplexF(1e37F, 0);
-            return ComplexF.Divide(sn, cs);
+            if (cs.x == 0 && cs.y == 0) return new ComplexD(double.MaxValue, 0);
+            return ComplexD.Divide(sn, cs);
         }
 
         [Cudafy]
-        private static ComplexF cth(ComplexF c)
+        private static ComplexD cth(ComplexD c)
         {
-            ComplexF sn = sh(c);
-            ComplexF cs = ch(c);
+            ComplexD sn = sh(c);
+            ComplexD cs = ch(c);
 
-            if (sn.x == 0 && sn.y == 0) return new ComplexF(1e37F, 0);
-            return ComplexF.Divide(cs, sn);
+            if (sn.x == 0 && sn.y == 0) return new ComplexD(double.MaxValue, 0);
+            return ComplexD.Divide(cs, sn);
         }
 
         [Cudafy]
-        private static ComplexF sqrt(ComplexF c)
+        private static ComplexD sqrt(ComplexD c)
         {
-            return makeComplexF(Cudafy.GMath.Sqrt(abs(c)), arg(c) / 2);
+            return makeComplexD(Cudafy.GMath.Sqrt((float)abs(c)), arg(c) / 2);
         }
 
         [Cudafy]
-        private static ComplexF sh(ComplexF c)
+        private static ComplexD sh(ComplexD c)
         {
-            ComplexF t = ComplexF.Subtract(exp(c), exp(new ComplexF(-c.x, -c.y)));
-            return new ComplexF(t.x / 2, t.y / 2);
+            ComplexD t = ComplexD.Subtract(exp(c), exp(new ComplexD(-c.x, -c.y)));
+            return new ComplexD(t.x / 2, t.y / 2);
         }
 
         [Cudafy]
-        private static ComplexF ch(ComplexF c)
+        private static ComplexD ch(ComplexD c)
         {
-            ComplexF t = ComplexF.Add(exp(c), exp(new ComplexF(-c.x, -c.y)));
-            return new ComplexF(t.x / 2, t.y / 2);
+            ComplexD t = ComplexD.Add(exp(c), exp(new ComplexD(-c.x, -c.y)));
+            return new ComplexD(t.x / 2, t.y / 2);
         }
 
         [Cudafy]
-        private static ComplexF pow(ComplexF c1, ComplexF c2)
+        private static ComplexD pow(ComplexD c1, ComplexD c2)
         {
-            float a = abs(c1);
-            float b = arg(c1);
-            float c =   c2.x;
-            float d =   c2.y;
+            double a = abs(c1);
+            double b = arg(c1);
+            double c =   c2.x;
+            double d =   c2.y;
 
             if (a == 0) a = 1e-38F;
 
-            return makeComplexF(Cudafy.GMath.Pow(a, c) * Cudafy.GMath.Exp(-b * d), Cudafy.GMath.Log(a) * d + b * c);
+            return makeComplexD(Cudafy.GMath.Pow((float)a, (float)c) * Cudafy.GMath.Exp((float)(-b * d)), Cudafy.GMath.Log((float)a) * d + b * c);
              
         }
 
 
         [Cudafy]
-        private static ComplexF arcsin(ComplexF c)
+        private static ComplexD arcsin(ComplexD c)
         {
-            ComplexF x1 = new ComplexF(-c.y, c.x);
-            ComplexF one = new ComplexF(1, 0);
-            ComplexF x2 = sqrt(ComplexF.Subtract(one, ComplexF.Multiply(c, c)));
+            ComplexD x1 = new ComplexD(-c.y, c.x);
+            ComplexD one = new ComplexD(1, 0);
+            ComplexD x2 = sqrt(ComplexD.Subtract(one, ComplexD.Multiply(c, c)));
              
-            return ComplexF.Multiply(new ComplexF(0, -1), log(ComplexF.Add(x1, x2)));
+            return ComplexD.Multiply(new ComplexD(0, -1), log(ComplexD.Add(x1, x2)));
         }
 
         [Cudafy]
-        private static ComplexF arccos(ComplexF c)
+        private static ComplexD arccos(ComplexD c)
         {
-            ComplexF t = arcsin(c);
-            return  new ComplexF(0.5F*3.1415926535F-t.x,-t.y);
+            ComplexD t = arcsin(c);
+            return new ComplexD(0.5 *3.14159265358979323846 - t.x, -t.y);
         }
 
         [Cudafy]
-        private static ComplexF arctg(ComplexF c)
+        private static ComplexD arctg(ComplexD c)
         { 
-            ComplexF x = ComplexF.Divide(new ComplexF(1-c.y, c.x), new ComplexF(1+c.y,-c.x));
-            return ComplexF.Multiply(new ComplexF(0F, -0.5F), log(x));
+            ComplexD x = ComplexD.Divide(new ComplexD(1-c.y, c.x), new ComplexD(1+c.y,-c.x));
+            return ComplexD.Multiply(new ComplexD(0, -0.5), log(x));
         }
 
         [Cudafy]
-        private static ComplexF arcctg(ComplexF c)
+        private static ComplexD arcctg(ComplexD c)
         {
-            ComplexF t = arctg(c);
-            return new ComplexF(1F * 3.1415926535F - t.x, -t.y);
+            ComplexD t = arctg(c);
+            return new ComplexD( 3.14159265358979323846 - t.x, -t.y);
         }
 
 
         [Cudafy]
-        private static ComplexF eval(int rpnLength, byte[] rpnFormula, ComplexF[] rpnKoef, ComplexF c, ComplexF z, ComplexF[] stack, int stackOffset)
+        private static ComplexD eval(int rpnLength, byte[] rpnFormula, ComplexD[] rpnKoef, ComplexD c, ComplexD z, ComplexD[] stack, int stackOffset)
         {
-            //return ComplexF.Add( ComplexF.Multiply(ComplexF.Multiply(z,z),z),c);
+            //return ComplexD.Add( ComplexD.Multiply(ComplexD.Multiply(z,z),z),c);
 
 
             int sPtr = stackOffset - 1;
@@ -492,10 +495,10 @@ namespace Aldyparen
                 }
                 else if (v <= 5)
                 {
-                    if (v == 1) stack[sPtr - 1] = ComplexF.Add(stack[sPtr - 1], stack[sPtr]);
-                    else if (v == 2) stack[sPtr - 1] = ComplexF.Subtract(stack[sPtr - 1], stack[sPtr]);
-                    else if (v == 3) stack[sPtr - 1] = ComplexF.Multiply(stack[sPtr - 1], stack[sPtr]);
-                    else if (v == 4) stack[sPtr - 1] = ComplexF.Divide(stack[sPtr - 1], stack[sPtr]);
+                    if (v == 1) stack[sPtr - 1] = ComplexD.Add(stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 2) stack[sPtr - 1] = ComplexD.Subtract(stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 3) stack[sPtr - 1] = ComplexD.Multiply(stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 4) stack[sPtr - 1] = ComplexD.Divide(stack[sPtr - 1], stack[sPtr]);
                     else if (v == 5) stack[sPtr - 1] = pow(stack[sPtr - 1], stack[sPtr]);
 
                     sPtr--;
@@ -522,12 +525,12 @@ namespace Aldyparen
                 }
                 else if (v <= 25)
                 {
-                    if (v == 20) stack[sPtr] = new ComplexF(abs(stack[sPtr]), 0);
-                    if (v == 21) stack[sPtr] = new ComplexF(stack[sPtr].x, 0);
-                    if (v == 22) stack[sPtr] = new ComplexF(stack[sPtr].y, 0);
-                    if (v == 23) stack[sPtr] = new ComplexF(arg(stack[sPtr]), 0);
+                    if (v == 20) stack[sPtr] = new ComplexD(abs(stack[sPtr]), 0);
+                    if (v == 21) stack[sPtr] = new ComplexD(stack[sPtr].x, 0);
+                    if (v == 22) stack[sPtr] = new ComplexD(stack[sPtr].y, 0);
+                    if (v == 23) stack[sPtr] = new ComplexD(arg(stack[sPtr]), 0);
                     if (v == 24) stack[sPtr] = sqrt(stack[sPtr]);
-                    if (v == 25) stack[sPtr] = new ComplexF(-stack[sPtr].x, -stack[sPtr].y);
+                    if (v == 25) stack[sPtr] = new ComplexD(-stack[sPtr].x, -stack[sPtr].y);
                 }
                 else if (v == 64) stack[++sPtr] = c;
                 else if (v == 65) stack[++sPtr] = z;

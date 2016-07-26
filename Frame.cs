@@ -189,7 +189,7 @@ namespace Aldyparen
        //Real size is twice more!
        unsafe public Bitmap getFrame(int W, int H)
        {
-           if (CudaPainter.enabled && CudaPainter.canRender(this))
+           if (CudaPainter.enabled && CudaPainter.canRender(this)  && !CudaPainter.corrupted)
            {
                try
                {
@@ -197,7 +197,8 @@ namespace Aldyparen
                }
                catch (Exception ex)
                {
-                   MessageBox.Show("Error while rendering picture on GPU.\n" + ex.Message + "\n\nRecommendations:\n0.Restart application immidiately.\n1.Increase timeout in registry (HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers\\...)\n2.Request smaller frame\n3.Don't use CUDA.");
+                   CudaPainter.corrupted = true;
+                   MessageBox.Show("Error while rendering picture on GPU.\n" + ex.Message + "\n\nRecommendations:\n0.Restart application immidiately.\n1.Increase timeout in registry (HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers\\...)\n2.Use row Scan\n3.Request smaller frame\n4.Don't use CUDA.");
                    return null;
                }
            }

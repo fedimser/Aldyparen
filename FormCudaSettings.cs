@@ -30,8 +30,17 @@ namespace Aldyparen
         {
             if (CudaPainter.isCudaAvailable())
             {
-                label1.Text = "CUDA is available!";
-                groupBox1.Enabled = true;
+                if (CudaPainter.corrupted)
+                {
+                    label1.Text = "There was error in CUDA. Restart application.";
+                    groupBox1.Enabled = false;
+                }
+                else
+                {
+                    label1.Text = "CUDA is available!";
+                    groupBox1.Enabled = true;
+                }
+                
             }
             else
             {
@@ -49,6 +58,8 @@ namespace Aldyparen
                 checkBox1.Checked = false ;
                 labelProperties.Text = "";
             }
+
+            checkBox2.Checked = CudaPainter.rowScan; 
         }
  
 
@@ -75,6 +86,11 @@ namespace Aldyparen
 
             checkBox1.Checked = CudaPainter.enabled;
              
+        }
+
+        private void FormCudaSettings_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            CudaPainter.rowScan = checkBox2.Checked;
         }
     }
 }

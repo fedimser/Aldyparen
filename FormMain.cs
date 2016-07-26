@@ -147,7 +147,7 @@ namespace Aldyparen
 
         void refreshFrame()
         { 
-            pictureBox2.Image = curFrame.getFrame(W1, H1); 
+             pictureBox2.Image = curFrame.getFrame(W1, H1); 
             curFrameChanged = false;
         }
 
