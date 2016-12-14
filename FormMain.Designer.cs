@@ -105,6 +105,10 @@
             this.textBoxFormula = new System.Windows.Forms.RichTextBox();
             this.button12 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.labelRightAreaInfo = new System.Windows.Forms.Label();
+            this.labelLeftAreaInfo = new System.Windows.Forms.Label();
+            this.frameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -330,7 +334,7 @@
             this.droupBoxAnimation.Controls.Add(this.button2);
             this.droupBoxAnimation.Controls.Add(this.label6);
             this.droupBoxAnimation.Controls.Add(this.numericUpDownDiv);
-            this.droupBoxAnimation.Location = new System.Drawing.Point(341, 543);
+            this.droupBoxAnimation.Location = new System.Drawing.Point(341, 580);
             this.droupBoxAnimation.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.droupBoxAnimation.Name = "droupBoxAnimation";
             this.droupBoxAnimation.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -348,7 +352,7 @@
             this.groupBox1.Controls.Add(this.panel1);
             this.groupBox1.Controls.Add(this.numericUpDown10);
             this.groupBox1.Controls.Add(this.button4);
-            this.groupBox1.Location = new System.Drawing.Point(9, 543);
+            this.groupBox1.Location = new System.Drawing.Point(9, 580);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -510,7 +514,7 @@
             this.groupBox3.Controls.Add(this.numericUpDown4);
             this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.numericUpDown3);
-            this.groupBox3.Location = new System.Drawing.Point(9, 645);
+            this.groupBox3.Location = new System.Drawing.Point(9, 682);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -571,7 +575,7 @@
             this.labelStopwatch,
             this.toolStripStatusLabel1,
             this.LabelCuda});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 802);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 840);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
             this.statusStrip1.Size = new System.Drawing.Size(1302, 30);
@@ -630,7 +634,7 @@
             this.groupBox4.Controls.Add(this.label11);
             this.groupBox4.Controls.Add(this.numericUpDown7);
             this.groupBox4.Controls.Add(this.button1);
-            this.groupBox4.Location = new System.Drawing.Point(341, 649);
+            this.groupBox4.Location = new System.Drawing.Point(341, 686);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(263, 145);
             this.groupBox4.TabIndex = 63;
@@ -659,6 +663,7 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fleToolStripMenuItem,
+            this.frameToolStripMenuItem,
             this.generatorsToolStripMenuItem,
             this.videoEditToolStripMenuItem,
             this.transformToolStripMenuItem,
@@ -791,14 +796,14 @@
             // setToolStripMenuItem
             // 
             this.setToolStripMenuItem.Name = "setToolStripMenuItem";
-            this.setToolStripMenuItem.Size = new System.Drawing.Size(126, 30);
+            this.setToolStripMenuItem.Size = new System.Drawing.Size(152, 30);
             this.setToolStripMenuItem.Text = "Set...";
             this.setToolStripMenuItem.Click += new System.EventHandler(this.setToolStripMenuItem_Click);
             // 
             // resetToolStripMenuItem
             // 
             this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-            this.resetToolStripMenuItem.Size = new System.Drawing.Size(126, 30);
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(152, 30);
             this.resetToolStripMenuItem.Text = "Reset";
             this.resetToolStripMenuItem.Click += new System.EventHandler(this.resetToolStripMenuItem_Click);
             // 
@@ -894,18 +899,53 @@
             this.groupBox2.Controls.Add(this.textBoxFormula);
             this.groupBox2.Controls.Add(this.button12);
             this.groupBox2.Controls.Add(this.labelFormulaError);
-            this.groupBox2.Location = new System.Drawing.Point(9, 445);
+            this.groupBox2.Location = new System.Drawing.Point(9, 482);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(1281, 90);
             this.groupBox2.TabIndex = 75;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Generator";
             // 
+            // labelRightAreaInfo
+            // 
+            this.labelRightAreaInfo.AutoSize = true;
+            this.labelRightAreaInfo.Location = new System.Drawing.Point(653, 442);
+            this.labelRightAreaInfo.Name = "labelRightAreaInfo";
+            this.labelRightAreaInfo.Size = new System.Drawing.Size(142, 20);
+            this.labelRightAreaInfo.TabIndex = 76;
+            this.labelRightAreaInfo.Text = "labelRightAreaInfo";
+            // 
+            // labelLeftAreaInfo
+            // 
+            this.labelLeftAreaInfo.AutoSize = true;
+            this.labelLeftAreaInfo.Location = new System.Drawing.Point(12, 442);
+            this.labelLeftAreaInfo.Name = "labelLeftAreaInfo";
+            this.labelLeftAreaInfo.Size = new System.Drawing.Size(132, 20);
+            this.labelLeftAreaInfo.TabIndex = 77;
+            this.labelLeftAreaInfo.Text = "labelLeftAreaInfo";
+            // 
+            // frameToolStripMenuItem
+            // 
+            this.frameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.gridToolStripMenuItem});
+            this.frameToolStripMenuItem.Name = "frameToolStripMenuItem";
+            this.frameToolStripMenuItem.Size = new System.Drawing.Size(73, 29);
+            this.frameToolStripMenuItem.Text = "Frame";
+            // 
+            // gridToolStripMenuItem
+            // 
+            this.gridToolStripMenuItem.Name = "gridToolStripMenuItem";
+            this.gridToolStripMenuItem.Size = new System.Drawing.Size(152, 30);
+            this.gridToolStripMenuItem.Text = "Grid";
+            this.gridToolStripMenuItem.Click += new System.EventHandler(this.gridToolStripMenuItem_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1302, 832);
+            this.ClientSize = new System.Drawing.Size(1302, 870);
+            this.Controls.Add(this.labelLeftAreaInfo);
+            this.Controls.Add(this.labelRightAreaInfo);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -1034,6 +1074,10 @@
         private System.Windows.Forms.ToolStripMenuItem makePhotoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manualToolStripMenuItem;
+        private System.Windows.Forms.Label labelRightAreaInfo;
+        private System.Windows.Forms.Label labelLeftAreaInfo;
+        private System.Windows.Forms.ToolStripMenuItem frameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
     }
 }
 

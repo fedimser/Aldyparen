@@ -353,21 +353,15 @@ namespace Aldyparen
         [Cudafy]
         private static ComplexD sin(ComplexD c)
         {
-            ComplexD ic = new ComplexD(-c.x, c.y);       //ic
-            ComplexD mic = new ComplexD(c.x, -c.y);     //-c
-
-            ComplexD t = ComplexD.Subtract(exp(ic), exp(mic));
-            return new ComplexD(t.x / 2, t.y / 2);
+            return new ComplexD(Cudafy.GMath.Cosh((float)c.y) * Cudafy.GMath.Sin((float)c.x),
+                Cudafy.GMath.Sinh((float)c.y) * Cudafy.GMath.Cos((float)c.x));
         }
 
         [Cudafy]
         private static ComplexD cos(ComplexD c)
         {
-            ComplexD ic = new ComplexD(-c.x, c.y);       //ic
-            ComplexD mic = new ComplexD(c.x, -c.y);     //-c
-
-            ComplexD t = ComplexD.Add(exp(ic), exp(mic));
-            return new ComplexD(t.x / 2, t.y / 2);
+            return new ComplexD(Cudafy.GMath.Cosh((float)c.y) * Cudafy.GMath.Cos((float)c.x),
+                -Cudafy.GMath.Sinh((float)c.y) * Cudafy.GMath.Sin((float)c.x));
         }
 
         [Cudafy]

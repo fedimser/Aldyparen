@@ -18,7 +18,7 @@ namespace Aldyparen
         public double genInfty;      //Limit for magnitude to consider that sequence diverges.
         public int genSteps;        //Limit for iterations to consider that sequence converges.
         public Complex genInit;       //First point of sequence
-
+         
 
         public FrameParams(int kCount,int _maxUsedColors)
         {
@@ -42,6 +42,8 @@ namespace Aldyparen
 
             return ret;
         }
+         
+
 
         public FrameParams clone()
         {
@@ -54,7 +56,7 @@ namespace Aldyparen
             if(this.genFunc!=null)ret.genFunc = this.genFunc.clone();
             ret.genInfty = this.genInfty;
             ret.genInit = this.genInit;
-            ret.genSteps = this.genSteps; 
+            ret.genSteps = this.genSteps;  
 
             return ret;
         }

@@ -22,24 +22,18 @@ namespace Aldyparen
 
        
         public delegate int Get_Pixel(Complex pnt, FrameParams p);
-
-
         public GeneratingMode genMode;
 
 
-      
+        public double rotation;
+        public double scale;
+        public Complex ctr;  
 
-
-        public  double rotation;
-        public  double scale;
-        public Complex ctr;
         public Get_Pixel dlgt;
 
         public Color[] colorMap;
         public const int MAX_COLORS = 256;
-        
-
-
+         
         public Frame()
         {
             genMode = GeneratingMode.Formula;
@@ -99,10 +93,10 @@ namespace Aldyparen
              * */
 
 
-       unsafe private Bitmap getFrameDelegate(int W, int H)
+       unsafe private Bitmap getFrameDelegate()
        {
-           int W2 = W * 2;
-           int H2 = H * 2;
+           int W2 = realHalfWidth * 2;
+           int H2 = realHalfHeight * 2;
            Bitmap bmp = new Bitmap(W2, H2, PixelFormat.Format24bppRgb);
 
            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, W2, H2), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
@@ -115,7 +109,7 @@ namespace Aldyparen
                    curpos = ((byte*)bd.Scan0) + y * bd.Stride;
                    for (int x = 0; x < W2; x++)
                    {
-                       Complex v = new Complex((x - W) * (scale / W), (y - H) * (scale / W)) * Complex.Exp(rotation * Complex.ImaginaryOne) + ctr;
+                       Complex v = pictureToMath(x,y);
                        int color_num = dlgt(v, param);
 
                        *(curpos++) = colorMap[color_num].B;
@@ -148,10 +142,41 @@ namespace Aldyparen
            return 0;
        }
 
-       unsafe private Bitmap getFrameFormula(int W, int H)
+
+
+       #region "Transformation"
+
+       private int realHalfWidth, realHalfHeight;
+       private Complex transMult; //multiplier in transformation 
+       
+       public void setSize(int width, int height)
        {
-           int W2 = W * 2;
-           int H2 = H * 2;
+           realHalfWidth = width / 2;
+           realHalfHeight = height / 2;
+           transMult = (scale / realHalfWidth) * Complex.Exp(rotation * Complex.ImaginaryOne);
+       }
+
+       public Complex pictureToMath(int x, int y)
+       {
+           return new Complex(x - realHalfWidth , y - realHalfHeight) *transMult+ ctr;
+       }
+
+       public Point mathToPicture(Complex pt)
+       {
+           pt = (pt - ctr) / transMult;
+           int x = Convert.ToInt32(pt.Real + realHalfWidth);
+           int y = Convert.ToInt32(pt.Imaginary+ realHalfHeight );
+           return new Point(x,y);
+       }
+
+       #endregion
+
+
+
+       unsafe private Bitmap getFrameFormula()
+       {
+           int W2 = realHalfWidth * 2;
+           int H2 = realHalfHeight * 2;
            Bitmap bmp = new Bitmap(W2, H2, PixelFormat.Format24bppRgb);
 
            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, W2, H2), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
@@ -164,7 +189,7 @@ namespace Aldyparen
                    curpos = ((byte*)bd.Scan0) + y * bd.Stride;
                    for (int x = 0; x < W2; x++)
                    {
-                       Complex v = new Complex((x - W) * (scale / W), (y - H) * (scale / W)) * Complex.Exp(rotation * Complex.ImaginaryOne) + ctr;
+                       Complex v = pictureToMath(x, y);
 
                        int clr = getSequenceDivergence(v, param.genFunc, param.genInit, param.genInfty, param.genSteps);
 
@@ -187,13 +212,15 @@ namespace Aldyparen
         
 
        //Real size is twice more!
-       unsafe public Bitmap getFrame(int W, int H)
+       unsafe public Bitmap getFrame(int W, int H, Grid grid)
        {
+           setSize(2 * W, 2 * H);
+           Bitmap result = null;
            if (CudaPainter.enabled && CudaPainter.canRender(this)  && !CudaPainter.corrupted)
            {
                try
                {
-                   return CudaPainter.render(W, H, this);
+                   result = CudaPainter.render(realHalfWidth, realHalfHeight, this);
                }
                catch (Exception ex)
                {
@@ -204,9 +231,22 @@ namespace Aldyparen
            }
            else
            {
-                if(genMode==GeneratingMode.Delegate)   return getFrameDelegate(W, H);
-                else return getFrameFormula(W, H);
+                if(genMode==GeneratingMode.Delegate)   result= getFrameDelegate();
+                else result= getFrameFormula();
            }
+           if (grid!=null)
+           {
+               drawGrid(ref result, grid);
+           }
+           return result;
+          
+       }
+
+       public void drawGrid(ref Bitmap bmp, Grid grid)
+       {
+           Graphics g = Graphics.FromImage(bmp);
+           g.DrawLine(grid.AxisPen, mathToPicture(new Complex(-100, 0)), mathToPicture(new Complex(100, 0)));
+           g.DrawLine(grid.AxisPen, mathToPicture(new Complex(0, -100)), mathToPicture(new Complex(0, 100)));
        }
 
 

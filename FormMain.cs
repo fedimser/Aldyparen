@@ -23,7 +23,9 @@ namespace Aldyparen
 
         Frame[] frames;
         Color[] colors;
-        int frame_counter=0; 
+        int frame_counter=0;
+
+        Grid gridRight = null;
 
 
         public FormMain()
@@ -68,7 +70,7 @@ namespace Aldyparen
                 frame_counter++;
             }
 
-            pictureBox1.Image = lastFrame().getFrame(W1, H1);
+            refreshFrame();
 
             //curFrame = lastFrame().clone();
             //curFrameChanged = true;
@@ -147,8 +149,8 @@ namespace Aldyparen
 
         void refreshFrame()
         { 
-             pictureBox2.Image = curFrame.getFrame(W1, H1); 
-            curFrameChanged = false;
+             pictureBox2.Image = curFrame.getFrame(W1, H1, gridRight); 
+             curFrameChanged = false;
         }
 
          
@@ -179,6 +181,7 @@ namespace Aldyparen
 
         private void pictureBox2_MouseHover(object sender, EventArgs e)
         {
+            isCursorOverRightArea = true;
             pictureBox2.Focus();
         }
 
@@ -201,6 +204,7 @@ namespace Aldyparen
         {
             if (is_now_tracking) ApplyTracking();
             is_now_tracking = false;
+            isCursorOverRightArea = false;
         }
 
         void ApplyTracking()
@@ -285,7 +289,7 @@ namespace Aldyparen
 
             for (int i = 0; i < frame_counter; i++)
             {
-                wr.AddFrame(param.frames[i].getFrame(param.halfWidth, param.halfHeight));
+                wr.AddFrame(param.frames[i].getFrame(param.halfWidth, param.halfHeight,null));
                 Console.WriteLine("Frame {0} out of {1} is done!", i + 1, param.frameCount);
                 statusFrames = String.Format("{0}/{1}", i + 1, param.frameCount);
             }
@@ -327,6 +331,8 @@ namespace Aldyparen
         #endregion 
           
 
+        private bool isCursorOverRightArea = false;
+
         private void timer1_Tick(object sender, EventArgs e)
         {   
             FPS = (int)numericUpDown5.Value;
@@ -336,6 +342,12 @@ namespace Aldyparen
 
             labelOF.Text = String.Format("scl={0:e2} ctr=({1:e2};{2:e2}) Frame={3} Time={4:0.##}", lastFrame().scale, lastFrame().ctr.Real, lastFrame().ctr.Imaginary, frame_counter, (double)frame_counter / FPS);
             labelNF.Text = String.Format("scl={0:e2} ctr=({1:e2};{2:e2}) Frame={3} Time={4:0.##}", curFrame.scale, curFrame.ctr.Real, curFrame.ctr.Imaginary, frame_counter + AnimLength, (double)(frame_counter + AnimLength) / FPS);
+
+            if(isCursorOverRightArea) 
+            { 
+                Complex pos = curFrame.ctr + curFrame.scale * get_Mouse_Position();
+                labelRightAreaInfo.Text = String.Format("({0:0.##};{0:0.##})", pos.Real, pos.Imaginary);
+            }
 
             if (is_now_tracking) ApplyTracking();
 
@@ -436,7 +448,7 @@ namespace Aldyparen
 
         private void showLastFrame()
         {
-            pictureBox1.Image = lastFrame().getFrame(W1, H1); 
+            pictureBox1.Image = lastFrame().getFrame(W1, H1,gridRight); 
         }
 
        
@@ -828,7 +840,7 @@ namespace Aldyparen
             photoThreadsCounter++;
             
             photoParameters param = (photoParameters)_param;
-            Bitmap bmp = param._frame.getFrame(param._W, param._H);
+            Bitmap bmp = param._frame.getFrame(param._W, param._H,null);
 
             if (bmp == null) return;
 
@@ -924,38 +936,10 @@ namespace Aldyparen
         }
 
         #endregion
-
          
-        //show another window
-        private void button10_Click(object sender, EventArgs e)
-        {
-            var f2 = new Form2();
-
-
-            Frame fr = curFrame.clone();
-
-            Bitmap tb  = fr.getFrame(640/2, 480/2);
-            f2.MultVector = new byte[640 * 480];
-
-            int p = 0;
-            for(int y=0;y<480;y++)
-                for (int x = 0; x < 640; x++)
-                {
-                    Color c = tb.GetPixel(x, y);
-                    byte b = (byte)((c.R+c.G+c.B)/3);
-                    f2.MultVector[p] = b;
-                    p++;
-                }
-            
-            f2.ShowDialog();
-        }
 
        
- 
-
   
-
-        
          
 
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
@@ -1063,7 +1047,19 @@ namespace Aldyparen
         private void textBoxFormula_TextChanged(object sender, EventArgs e)
         {
             paintText(textBoxFormula, Color.Black);
-            if (realTimeApplying) refreshFormula();             
+            if (realTimeApplying) refreshFormula();  
+            
+            Function f = new Function();
+            f.setText(textBoxFormula.Text);
+            try
+            {
+
+            this.Text =  f.eval().ToString();
+            }
+            catch (Exception ex)
+            {
+                this.Text = "PP";
+            }
         }
 
         private void button12_Click_1(object sender, EventArgs e)
@@ -1169,6 +1165,13 @@ namespace Aldyparen
         private void manualToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("You can get manual on the page of the project: http://fedimser.github.io/aldyparen.html");
+        }
+
+        private void gridToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            gridToolStripMenuItem.Checked = !gridToolStripMenuItem.Checked;
+            gridRight = gridToolStripMenuItem.Checked ? new Grid() : null;
+            refreshFrame();
         }
          
          

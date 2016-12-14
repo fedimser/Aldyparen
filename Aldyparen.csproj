@@ -91,12 +91,6 @@
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form2.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form2.Designer.cs">
-      <DependentUpon>Form2.cs</DependentUpon>
-    </Compile>
     <Compile Include="FormCudaSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -107,6 +101,7 @@
     <Compile Include="FractalPainters.cs" />
     <Compile Include="Function.cs" />
     <Compile Include="FunctionExample.cs" />
+    <Compile Include="Grid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -118,9 +113,6 @@
     <Compile Include="Utility.cs" />
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form2.resx">
-      <DependentUpon>Form2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormCudaSettings.resx">
       <DependentUpon>FormCudaSettings.cs</DependentUpon>
