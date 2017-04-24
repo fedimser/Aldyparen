@@ -10,7 +10,7 @@ using System.Windows.Forms;
 namespace Aldyparen
 {
 
-     
+    [Serializable]
    public  class Frame
     {
 
@@ -128,7 +128,7 @@ namespace Aldyparen
        }
 
 
-       private int getSequenceDivergence(Complex c, Function func, Complex init,double infty, int steps)
+       private int getSequenceDivergence(Complex c, Function func, Complex init, double infty, int steps)
        { 
            Complex z = init;
            Dictionary<String, Complex> d = new Dictionary<String,Complex>();
@@ -212,9 +212,9 @@ namespace Aldyparen
         
 
        //Real size is twice more!
-       unsafe public Bitmap getFrame(int W, int H, Grid grid)
+       unsafe public Bitmap getFrame(int halfWidth, int halfHeight, Grid grid)
        {
-           setSize(2 * W, 2 * H);
+           setSize(2 * halfWidth, 2 * halfHeight);
            Bitmap result = null;
            if (CudaPainter.enabled && CudaPainter.canRender(this)  && !CudaPainter.corrupted)
            {
@@ -225,28 +225,49 @@ namespace Aldyparen
                catch (Exception ex)
                {
                    CudaPainter.corrupted = true;
-                   MessageBox.Show("Error while rendering picture on GPU.\n" + ex.Message + "\n\nRecommendations:\n0.Restart application immidiately.\n1.Increase timeout in registry (HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers\\...)\n2.Use row Scan\n3.Request smaller frame\n4.Don't use CUDA.");
+                   MessageBox.Show("Error while rendering picture on GPU.\n" +
+                       ex.Message + 
+                       "\n\nRecommendations:\n" + 
+                       "0.Restart application immidiately.\n" +
+                       "1.Increase timeout in registry (HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers\\...)\n" +
+                       "2.Use row Scan\n" + 
+                       "3.Request smaller frame\n" +
+                       "4.Don't use CUDA.");
                    return null;
                }
            }
            else
            {
-                if(genMode==GeneratingMode.Delegate)   result= getFrameDelegate();
-                else result= getFrameFormula();
+                if(genMode==GeneratingMode.Delegate) result = getFrameDelegate();
+                else result = getFrameFormula();
            }
-           if (grid!=null)
-           {
-               drawGrid(ref result, grid);
-           }
+           drawGrid(ref result, grid);
            return result;
           
        }
 
        public void drawGrid(ref Bitmap bmp, Grid grid)
        {
-           Graphics g = Graphics.FromImage(bmp);
-           g.DrawLine(grid.AxisPen, mathToPicture(new Complex(-100, 0)), mathToPicture(new Complex(100, 0)));
-           g.DrawLine(grid.AxisPen, mathToPicture(new Complex(0, -100)), mathToPicture(new Complex(0, 100)));
+           try
+           {
+
+               Graphics g = Graphics.FromImage(bmp);
+               if (grid.useGrid)
+               {
+                   g.DrawLine(grid.axisPen, mathToPicture(new Complex(-100, 0)), mathToPicture(new Complex(100, 0)));
+                   g.DrawLine(grid.axisPen, mathToPicture(new Complex(0, -100)), mathToPicture(new Complex(0, 100)));
+                   //TODO: not only axes, but also grid
+               }
+               if (grid.annotate)
+               {
+                   PointF pos = new PointF(0F, bmp.Height - 2 * grid.annotationFont.Size);
+                   g.DrawString(this.getAnnotation(), grid.annotationFont, new SolidBrush(grid.annotationColor), pos);
+               }
+           }
+           catch (Exception ex)
+           {
+               Console.WriteLine("Coludn't draw grid.");
+           }
        }
 
 
@@ -310,6 +331,18 @@ namespace Aldyparen
            if (B < 0) B = 0;
            if (B > 255) B = 255;
            return Color.FromArgb(255, R, G, B);
+       }
+
+       public string getAnnotation()
+       {
+           if (this.genMode == GeneratingMode.Delegate)
+           {
+               return "";
+           }
+           else 
+           {
+               return param.genFunc.getText();
+           }
        }
         
     }

@@ -33,10 +33,10 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelProperties = new System.Windows.Forms.Label();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -49,7 +49,7 @@
             this.checkBox1.Size = new System.Drawing.Size(114, 24);
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "Use CUDA";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.UseVisualStyleBackColor = true; 
             this.checkBox1.Click += new System.EventHandler(this.checkBox1_Click);
             // 
             // button1
@@ -83,6 +83,16 @@
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(427, 25);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(308, 24);
+            this.checkBox2.TabIndex = 6;
+            this.checkBox2.Text = "Row scan (for extremely large pictures)";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -109,16 +119,6 @@
             this.labelProperties.Size = new System.Drawing.Size(114, 20);
             this.labelProperties.TabIndex = 0;
             this.labelProperties.Text = "labelProperties";
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(427, 25);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(308, 24);
-            this.checkBox2.TabIndex = 6;
-            this.checkBox2.Text = "Row scan (for extremely large pictures)";
-            this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // FormCudaSettings
             // 

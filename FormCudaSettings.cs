@@ -20,12 +20,7 @@ namespace Aldyparen
         {
             this.Close();
         }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
+         
         private void FormCudaSettings_Load(object sender, EventArgs e)
         {
             if (CudaPainter.isCudaAvailable())
@@ -92,5 +87,6 @@ namespace Aldyparen
         {
             CudaPainter.rowScan = checkBox2.Checked;
         }
+         
     }
 }

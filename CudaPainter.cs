@@ -30,6 +30,7 @@ namespace Aldyparen
 
         public static bool cudaEnable()
         {
+            if (!isCudaAvailable()) return false;
             try
             {
                 CudafyModule km = CudafyTranslator.Cudafy();
@@ -106,7 +107,7 @@ namespace Aldyparen
             return (frame.genMode==Frame.GeneratingMode.Formula);
         }
 
-        unsafe public static Bitmap render(int W, int H, Frame frame)
+        unsafe public static Bitmap render(int halfWidth, int halfHeight, Frame frame)
         {
             if (frame.genMode != Frame.GeneratingMode.Formula)
             {
@@ -126,12 +127,12 @@ namespace Aldyparen
                 }
 
 
-                byte[] b = new byte[12 * W * H];
+                byte[] b = new byte[12 * halfWidth * halfHeight];
 
 
 
                 //Allocating memory for answer
-                byte[] dev_b = gpu.Allocate<byte>(12 * W * H);
+                byte[] dev_b = gpu.Allocate<byte>(12 * halfWidth * halfHeight);
                 gpu.CopyToDevice(b, dev_b);
 
 
@@ -176,25 +177,25 @@ namespace Aldyparen
 
 
                 //Allocating memory for stacks
-                ComplexD[] dev_stackMem = gpu.Allocate<ComplexD>(4 * W * H * Function.MAX_STACK_SIZE);
+                ComplexD[] dev_stackMem = gpu.Allocate<ComplexD>(4 * halfWidth * halfHeight * Function.MAX_STACK_SIZE);
 
 
                  
                 //Calling main routine
                 int N = frame.param.genFunc.rpnFormula.Length;
-                dim3 gs = new dim3(2 * W, 2 * H);
+                dim3 gs = new dim3(2 * halfWidth, 2 * halfHeight);
 
                 if (rowScan)
                 {
-                    gs = new dim3(2*W, 1);
-                    for (int y = 0; y < 2*H; y++)
+                    gs = new dim3(2 * halfWidth, 1);
+                    for (int y = 0; y < 2 * halfHeight; y++)
                     {
-                        gpu.Launch(gs, 1).setPixel(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, y);
+                        gpu.Launch(gs, 1).setPixel(halfWidth, halfHeight, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, y);
                     }
                 }
                 else
                 {
-                    gpu.Launch(gs, 1).setPixel(W, H, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, 0);
+                    gpu.Launch(gs, 1).setPixel(halfWidth, halfHeight, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, 0);
                 }
                 gpu.CopyFromDevice(dev_b, b);
 
@@ -209,18 +210,18 @@ namespace Aldyparen
 
 
                 //saving picture
-                int W2 = W * 2;
-                int H2 = H * 2;
-                Bitmap bmp = new Bitmap(W2, H2, PixelFormat.Format24bppRgb);
-                BitmapData bd = bmp.LockBits(new Rectangle(0, 0, W2, H2), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                int width = halfWidth * 2;
+                int height = halfHeight * 2;
+                Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+                BitmapData bd = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
                 byte* curpos = ((byte*)bd.Scan0);
 
 
-                for (int y = 0; y < H2; y++)
+                for (int y = 0; y < height; y++)
                 {
                     curpos = ((byte*)bd.Scan0) + y * bd.Stride;
-                    int offset = y * 3 * W2;
-                    for (int x = 0; x < 3 * W2; x++)
+                    int offset = y * 3 * width;
+                    for (int x = 0; x < 3 * width; x++)
                     {
                         *(curpos++) = b[x + offset];
                     }
@@ -296,7 +297,10 @@ namespace Aldyparen
         [Cudafy]
         private static int getSequenceDivergence(ComplexD c, int rpnLength, byte[] rpnFormula, ComplexD[] rpnKoef,
             ComplexD init, double infty, int steps, ComplexD[] stackMem, int stackOffset)
-        { 
+        {
+            // DEBUG
+            //return Mandelbrot(c);
+            
             ComplexD z = init; 
             for (int i = steps - 1; i >= 1; i--)
             { 

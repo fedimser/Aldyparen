@@ -7,6 +7,7 @@ using System.Numerics;
 
 namespace Aldyparen
 {
+    [Serializable]
     public class FrameParams
     {
         public double[] k;

@@ -40,7 +40,7 @@ namespace Aldyparen
      *      22 im     
      *      23 arg
      *      24 sqrt
-     *      25 UNAR MINUS
+     *      25 UNARY MINUS
      *      25-63 RESERVED FOR UNARY OPERATORS
      *      64-127 VARIABLES
      *      128 (
@@ -51,7 +51,7 @@ namespace Aldyparen
      */
 
 
-
+    [Serializable]
     public class Function
     {
 
@@ -67,7 +67,7 @@ namespace Aldyparen
         public Dictionary<String, int> varNames = new Dictionary<String, int>();
         public Complex[] varValues = new Complex[MAX_VARIABLES];
 
-        private String text = "";
+        //private String text = "";
 
         public byte[] rpnFormula;
         public Complex[] rpnKoef;
@@ -76,6 +76,7 @@ namespace Aldyparen
         private bool correct = false;
         public String errorMessage;
         public int errorIdx1,errorIdx2;
+        private String text = null;
 
         public Function()
         {
@@ -100,7 +101,7 @@ namespace Aldyparen
             }
              
             
-            ret.text="NOT ACTUAL. SEE RPN ARRAYS.";
+            //ret.text="NOT ACTUAL. SEE RPN ARRAYS.";
             ret.rpnFormula = new byte[rpnFormula.Length];
             ret.rpnKoef = new Complex[this.rpnKoef.Length];
             
@@ -136,9 +137,10 @@ namespace Aldyparen
         public void setText(String f)
         {
             f = f.ToLower().Replace(".", ",");
+            text = f;
 
             if (f.Length==0 || f[f.Length - 1] != ' ') f = f + " ";
-            text = f;
+            //text = f;
 
 
 
@@ -343,11 +345,79 @@ namespace Aldyparen
             correct = true;
         }
 
-
-
+        //Gets symbolic representation of formula
         public String getText()
         {
-            return text;
+            if (this.text != null)
+                return text;
+
+            String[] reverseVarNames = new String[varNames.Count]; 
+            foreach ( String vn in varNames.Keys) {
+                reverseVarNames[varNames[vn]] = vn;
+            }
+
+            SymbolicExpression[] stack = new SymbolicExpression[rpnFormula.Length];
+            int sPtr = -1;
+            int vPtr = 0;
+
+            for (int i = 0; i < rpnFormula.Length; i++)
+            {
+                byte v = rpnFormula[i];
+                if (v == 0)
+                {
+                    stack[++sPtr] = new SymbolicExpression(rpnKoef[vPtr++]);
+                }
+                else if (v <= 5)
+                {
+                    if (v == 1) stack[sPtr - 1] = new SymbolicExpression("+", stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 2) stack[sPtr - 1] = new SymbolicExpression("-", stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 3) stack[sPtr - 1] = new SymbolicExpression("*", stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 4) stack[sPtr - 1] = new SymbolicExpression("/", stack[sPtr - 1], stack[sPtr]);
+                    else if (v == 5) stack[sPtr - 1] = new SymbolicExpression("^", stack[sPtr - 1], stack[sPtr]);
+
+                    sPtr--;
+                }
+                else if (v <= 10)
+                {
+                    if (v == 6) stack[sPtr] = new SymbolicExpression("lg", stack[sPtr]);
+                    else if (v == 7) stack[sPtr] = new SymbolicExpression("exp", stack[sPtr]);
+                    else if (v == 8) stack[sPtr] = new SymbolicExpression("sin", stack[sPtr]);
+                    else if (v == 9) stack[sPtr] = new SymbolicExpression("cos", stack[sPtr]);
+                    else if (v == 10) stack[sPtr] = new SymbolicExpression("tg", stack[sPtr]);
+                }
+                else if (v <= 19)
+                {
+                    if (v == 11) stack[sPtr] = new SymbolicExpression("ctg", stack[sPtr]);
+                    else if (v == 12) stack[sPtr] = new SymbolicExpression("asin", stack[sPtr]);
+                    else if (v == 13) stack[sPtr] = new SymbolicExpression("acos", stack[sPtr]);
+                    else if (v == 14) stack[sPtr] = new SymbolicExpression("atan", stack[sPtr]);
+                    else if (v == 15) stack[sPtr] = new SymbolicExpression("acot", stack[sPtr]);
+                    else if (v == 16) stack[sPtr] = new SymbolicExpression("sh", stack[sPtr]);
+                    else if (v == 17) stack[sPtr] = new SymbolicExpression("ch", stack[sPtr]);
+                    else if (v == 18) stack[sPtr] = new SymbolicExpression("th", stack[sPtr]);
+                    else if (v == 19) stack[sPtr] = new SymbolicExpression("cth", stack[sPtr]);
+                }
+                else if (v <= 25)
+                {
+                    if (v == 20) stack[sPtr] = new SymbolicExpression("abs", stack[sPtr]);
+                    if (v == 21) stack[sPtr] = new SymbolicExpression("Re", stack[sPtr]);
+                    if (v == 22) stack[sPtr] = new SymbolicExpression("Im", stack[sPtr]);
+                    if (v == 23) stack[sPtr] = new SymbolicExpression("arg", stack[sPtr]);
+                    if (v == 24) stack[sPtr] = new SymbolicExpression("sqrt", stack[sPtr]);
+                    if (v == 25) stack[sPtr] = new SymbolicExpression("-", stack[sPtr]);
+                }
+                else if (v <= 63)
+                {
+                    //RESERVED
+                }
+                else if (v <= 127)
+                {
+                    stack[++sPtr] = new SymbolicExpression(reverseVarNames[v-64]);
+                }
+                else throw new IndexOutOfRangeException("Invalid symbol code");
+            }
+            this.text = stack[0].toString();
+            return this.text;
         }
 
         public Symbol getSymbol(int pos)

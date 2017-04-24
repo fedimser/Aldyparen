@@ -27,6 +27,10 @@ namespace Aldyparen
             textBoxSteps.Text = formMain.curFrame.param.genSteps.ToString();
             textBoxInitX.Text = formMain.curFrame.param.genInit.Real.ToString();
             textBoxInitY.Text = formMain.curFrame.param.genInit.Imaginary.ToString();
+
+            numericUpDownFPS.Value = formMain.FPS;
+            numericUpDownVideoHeight.Value = formMain.videoHeight;
+            numericUpDownVideoWidth.Value = formMain.videoWidth;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -34,6 +38,10 @@ namespace Aldyparen
             try
             {
                 formMain.realTimeApplying = checkBoxRealTime.Checked;
+                formMain.FPS = (int)numericUpDownFPS.Value;
+                formMain.videoHeight = (int)numericUpDownVideoHeight.Value;
+                formMain.videoWidth = (int)numericUpDownVideoWidth.Value;
+
                 var v1  = new Complex(Convert.ToDouble(textBoxInitX.Text), Convert.ToDouble(textBoxInitY.Text));
                 var v2 = Convert.ToDouble(textBoxInfty.Text);
                 var v3 = Convert.ToInt32(textBoxSteps.Text);
