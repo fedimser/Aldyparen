@@ -156,9 +156,19 @@ namespace Aldyparen
            transMult = (scale / realHalfWidth) * Complex.Exp(rotation * Complex.ImaginaryOne);
        }
 
-       public Complex pictureToMath(int x, int y)
+       public Size getSize()
        {
-           return new Complex(x - realHalfWidth , y - realHalfHeight) *transMult+ ctr;
+           return new Size(2 * realHalfWidth, 2 * realHalfHeight);
+       }
+
+       public Complex pictureToMath(PointF p)
+       {
+           return new Complex(p.X - realHalfWidth , p.Y - realHalfHeight) *transMult+ ctr;
+       }
+
+       public Complex pictureToMath(int X, int Y)
+       {
+           return new Complex(X - realHalfWidth, Y - realHalfHeight) * transMult + ctr;
        }
 
        public Point mathToPicture(Complex pt)
@@ -216,7 +226,7 @@ namespace Aldyparen
        {
            setSize(2 * halfWidth, 2 * halfHeight);
            Bitmap result = null;
-           if (CudaPainter.enabled && CudaPainter.canRender(this)  && !CudaPainter.corrupted)
+           if (CudaPainter.enabled && CudaPainter.canRender(this)  && !CudaPainter.corrupted && !CudaPainter.busy)
            {
                try
                {
@@ -248,26 +258,37 @@ namespace Aldyparen
 
        public void drawGrid(ref Bitmap bmp, Grid grid)
        {
-           try
-           {
+           if (bmp == null || grid==null) return;
 
-               Graphics g = Graphics.FromImage(bmp);
-               if (grid.useGrid)
-               {
-                   g.DrawLine(grid.axisPen, mathToPicture(new Complex(-100, 0)), mathToPicture(new Complex(100, 0)));
-                   g.DrawLine(grid.axisPen, mathToPicture(new Complex(0, -100)), mathToPicture(new Complex(0, 100)));
-                   //TODO: not only axes, but also grid
-               }
-               if (grid.annotate)
-               {
-                   PointF pos = new PointF(0F, bmp.Height - 2 * grid.annotationFont.Size);
-                   g.DrawString(this.getAnnotation(), grid.annotationFont, new SolidBrush(grid.annotationColor), pos);
-               }
-           }
-           catch (Exception ex)
-           {
-               Console.WriteLine("Coludn't draw grid.");
-           }
+           double step = Math.Pow(10, Math.Floor(Math.Log10(scale)));
+           int nSteps = 15;
+
+           int ctrX  = (int)(ctr.Real/step);
+           int ctrY  = (int)(ctr.Imaginary/step);
+
+            Graphics g = Graphics.FromImage(bmp);
+            if (grid.useAxes)
+            {
+                g.DrawLine(grid.axesPen, mathToPicture(new Complex(step * (ctrX -nSteps), 0)), mathToPicture(new Complex(step *(ctrX+ nSteps), 0)));
+                g.DrawLine(grid.axesPen, mathToPicture(new Complex(0, step * (ctrY-nSteps))), mathToPicture(new Complex(0, step * (ctrY+nSteps))));
+                //TODO: not only axes, but also grid
+            }
+
+            if (grid.useGrid)
+            {
+                for(int i=-nSteps; i<=nSteps;i++) {
+                    g.DrawLine(grid.gridPen, mathToPicture(new Complex(step * (ctrX-nSteps), step*(ctrY+i))), mathToPicture(new Complex(step * (ctrX+nSteps), step*(ctrY+i))));
+                    g.DrawLine(grid.gridPen, mathToPicture(new Complex(step*(ctrX+i), step * (ctrY-nSteps))), mathToPicture(new Complex(step*(ctrX+i), step * (ctrY+nSteps))));
+                } 
+            }
+
+
+            if (grid.annotate)
+            {
+                PointF pos = new PointF(0F, bmp.Height - 2 * grid.annotationFont.Size);
+                g.DrawString(this.getAnnotation(), grid.annotationFont, new SolidBrush(grid.annotationColor), pos);
+            }
+         
        }
 
 

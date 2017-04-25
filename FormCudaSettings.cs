@@ -28,12 +28,24 @@ namespace Aldyparen
                 if (CudaPainter.corrupted)
                 {
                     label1.Text = "There was error in CUDA. Restart application.";
+                    labelProperties.Text = CudaPainter.errorMessage;
                     groupBox1.Enabled = false;
                 }
                 else
                 {
                     label1.Text = "CUDA is available!";
                     groupBox1.Enabled = true;
+
+                    if (CudaPainter.enabled)
+                    {
+                        checkBox1.Checked = true;
+                        labelProperties.Text = CudaPainter.getPropertiesString();
+                    }
+                    else
+                    {
+                        checkBox1.Checked = false;
+                        labelProperties.Text = "";
+                    }
                 }
                 
             }
@@ -43,16 +55,7 @@ namespace Aldyparen
                 groupBox1.Enabled = false;
             }
 
-            if (CudaPainter.enabled)
-            {
-                checkBox1.Checked = true;
-                labelProperties.Text = CudaPainter.getPropertiesString();
-            }
-            else
-            {
-                checkBox1.Checked = false ;
-                labelProperties.Text = "";
-            }
+            
 
             checkBox2.Checked = CudaPainter.rowScan; 
         }

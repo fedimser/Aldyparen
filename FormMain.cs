@@ -24,7 +24,7 @@ namespace Aldyparen
         Frame[] frames; 
         int frameCount=0;
 
-        Grid gridRight = new Grid(false);
+        Grid gridRight = new Grid();
         Boolean useAnnotation = false;
 
 
@@ -44,11 +44,12 @@ namespace Aldyparen
 
 
 
+
         //Settings
         public bool realTimeApplying=false;
         public bool isNowVideoSaving = false;
         public string statusFrames = "";
-
+        public string[] arguments;
 
         //Make animation
         private void button2_Click(object sender, EventArgs e)
@@ -74,10 +75,7 @@ namespace Aldyparen
 
             showFrame = frameCount - 1;
             refreshLeftPicture();
-            //refreshRightPicture();
-
-            //curFrame = lastFrame().clone();
-            //curFrameChanged = true;
+            currentProjectModified = true;
         }
 
 
@@ -95,6 +93,7 @@ namespace Aldyparen
 
             showFrame = frameCount - 1;
             refreshLeftPicture();
+            currentProjectModified = true;
         }
          
 
@@ -107,6 +106,7 @@ namespace Aldyparen
              
             //addFrame(curFrame.clone());            
             curFrameChanged = true;
+            currentProjectModified = true;
 
             panel1.BackColor = curFrame.colorMap[(int)numericUpDown10.Value];
             pictureBox1.Image = null;
@@ -120,12 +120,22 @@ namespace Aldyparen
 
         #region "Animation Settings"
 
-        Complex get_Mouse_Position()    //In Relative Screen coord
+        PointF getMousePosition()  
         {
-            Point z = Cursor.Position;
-            z = PointToClient(z);
-            return new Complex(z.X - pictureBox2.Left - pictureBox2.Width / 2, z.Y - pictureBox2.Top - pictureBox2.Height / 2) / (0.5 * pictureBox2.Width);
+            Point z = PointToClient(Cursor.Position);
 
+            if (pictureBox2.SizeMode == PictureBoxSizeMode.Normal)
+            {
+                return new PointF(z.X - pictureBox2.Left, z.Y - pictureBox2.Top);
+            } else {
+                Size curFrameSize = curFrame.getSize();
+                float ZoomScale = Math.Min(1.0F*pictureBox2.Width / curFrameSize.Width, 1.0F*pictureBox2.Height / curFrameSize.Height);
+
+                float realX = z.X - (pictureBox2.Left + 0.5F * pictureBox2.Width);
+                float realY = z.Y - (pictureBox2.Top + 0.5F * pictureBox2.Height);
+
+                return new PointF(realX/ZoomScale + 0.5F*curFrameSize.Width, realY/ZoomScale+0.5F*curFrameSize.Height);
+            }
         }
 
  
@@ -163,22 +173,26 @@ namespace Aldyparen
         private void pictureBox2_MouseWheel(object sender,MouseEventArgs e)
         {
             double delta = -Math.Sign(e.Delta);
+            Complex pole = curFrame.pictureToMath(getMousePosition());
+            
+            
             if ((Control.ModifierKeys & Keys.Shift) != 0) delta *= 20;
 
 
             if ((Control.ModifierKeys & Keys.Control) != 0)
-            { 
-                curFrame.rotation += 2*0.017453292*delta; 
+            {
+                delta = 2 * 0.017453292 * delta;
+                curFrame.rotation += delta; 
+                curFrame.ctr = pole + (curFrame.ctr-pole)*Complex.Exp(Complex.ImaginaryOne*delta);
                 curFrameChanged = true;
                 return;
             }
 
             double k=Math.Pow(1.05,delta);
 
-           
 
-            Complex p1 = curFrame.ctr + curFrame.scale * get_Mouse_Position();
-            curFrame.ctr = p1 - (p1 - curFrame.ctr) * k;
+
+            curFrame.ctr = pole - (pole - curFrame.ctr) * k;
             curFrame.scale = curFrame.scale * k;
 
             curFrameChanged = true;
@@ -352,7 +366,8 @@ namespace Aldyparen
             Frame f = frames[showFrame];
             return String.Format("Frame {0}/{1}\n Time {2:0.##}\n"+ 
                 "scale {3:e2}\n" + "center ({4:e2};{5:e2})\n{6}",
-                showFrame+1, frameCount, showFrame / FPS, f.scale, f.ctr.Real, f.ctr.Imaginary, f.getAnnotation()
+                showFrame+1, frameCount, showFrame / FPS, f.scale, f.ctr.Real, f.ctr.Imaginary,
+                f.getAnnotation()
             );
         }
 
@@ -378,18 +393,28 @@ namespace Aldyparen
         #endregion
 
         private void timer1_Tick(object sender, EventArgs e)
-        {     
-            AnimLength = Convert.ToInt32(numericUpDown1.Value);
+        {
+            if (arguments!=null && arguments.Length == 1)
+            {
+                string fileName = arguments[0];
+                arguments = null;
+                if (!openProject(fileName))
+                {
+                    MessageBox.Show("Coluldn't load project");
+                } 
+            }
 
+            AnimLength = Convert.ToInt32(numericUpDown1.Value);
 
             labelFrameInfo.Text = getShowFrameInfo();
             hScrollBarFrames.Enabled = frameCount != 0;
             groupBoxAnimation.Enabled = frameCount != 0;
 
             if(isCursorOverRightArea) 
-            { 
-                Complex pos = curFrame.ctr + curFrame.scale * get_Mouse_Position();
-                labelRightAreaInfo.Text = String.Format("({0:0.##};{0:0.##})", pos.Real, pos.Imaginary);
+            {
+                Complex pos = curFrame.pictureToMath(getMousePosition());
+                labelCurFrameInfo.Text = String.Format("({0:0.##};{1:0.##}) scale={2:0.##}", pos.Real, pos.Imaginary, curFrame.scale);
+                 
             }
 
             if (is_now_tracking) ApplyTracking();
@@ -428,7 +453,7 @@ namespace Aldyparen
             labelStopwatch.Text = statusTimeInfo;
              
             if (this.currentProjectFile!=null){
-                this.Text = applicationTitle + " - " + currentProjectFile;
+                this.Text = applicationTitle + " - " + currentProjectFile + (currentProjectModified? "*":"");
             }
             
          }
@@ -457,45 +482,24 @@ namespace Aldyparen
 
             reset_values_list();
 
-
              
-
-
             ResetColorCounters(); 
             setColors(curFrame);
-
-            /*
-            if (frames == null || (checkBox1.Checked == false)) startWork();
-            else
-            {
-                addFrame(curFrame.clone());
-                showLastFrame();
-            }*/
-
-
-            refreshRightPicture();
-
-
+            prepareDialogs();
             startWork();
 
-            prepareDialogs();
-
-            CudaPainter.cudaEnable();
+            
+            timer1.Start();
         }
          
 
-        private void removeLastFrame()
-        {
-            if (frameCount <=1  ) return;
-            frameCount--;
-            refreshLeftPicture();
-        }
 
-        private void removeLastTenFrames()
+        private void removeLastFrames(int count)
         {
-            frameCount-=10;
-            if (frameCount < 1) frameCount = 1;
+            frameCount -= count;
+            if (frameCount < 0) frameCount = 0;
             refreshLeftPicture();
+            currentProjectModified = true;
         } 
 
         /*
@@ -863,6 +867,8 @@ namespace Aldyparen
 
         #region "PhotoTaking"
 
+
+
         public class photoParameters
         { 
            public  Frame _frame;
@@ -876,6 +882,12 @@ namespace Aldyparen
 
         private int photoThreadsCounter = 0;
         private string statusTimeInfo = "";
+        public bool photoSelectDestination = false;
+        public ImageFormat photoImageFormat =   ImageFormat.Jpeg;
+        public int photoWidth = 1920;
+        public int photoHeight = 1080;
+        public string photoLabel = null;
+        private SaveFileDialog sfdPhoto = new SaveFileDialog();
 
         private void makePhoto(object _param)
         {
@@ -889,13 +901,13 @@ namespace Aldyparen
 
             if (bmp == null) return;
 
-            if (param.label.Length > 0)
+            if (param.label!= null && param.label.Length>0)
             {
                 int Frame_Width = 2 * param._W;
                 int Frame_Height = 2 * param._H;
                 Graphics g = Graphics.FromImage(bmp);
-                g.DrawString(textBox1.Text, new Font("Consolas", 10), Brushes.Gray, new PointF(0, 0));
-                g.DrawString(String.Format("Pos:({0:e5};{1:e5}).Width:{2:e5}", param._frame.ctr.Real, param._frame.ctr.Imaginary, 2 * param._frame.scale), new Font("Consolas", 10), Brushes.Gray, new PointF(0, 11));
+                // g.DrawString(textBox1.Text, new Font("Consolas", 10), Brushes.Gray, new PointF(0, 0));
+                // g.DrawString(String.Format("Pos:({0:e5};{1:e5}).Width:{2:e5}", param._frame.ctr.Real, param._frame.ctr.Imaginary, 2 * param._frame.scale), new Font("Consolas", 10), Brushes.Gray, new PointF(0, 11));
             }
 
             
@@ -906,17 +918,31 @@ namespace Aldyparen
             statusTimeInfo = sw.ElapsedMilliseconds.ToString() + "ms";
         }
 
+        private String getDialogFilter(ImageFormat format)
+        {
+            if (format == ImageFormat.Jpeg) return "JPEG files|*.jpg";
+            else if (format == ImageFormat.Bmp) return "BMP files|*.bmp";
+            else return "All files|*.*";
+        }
+
+        private string getFromatExtension(ImageFormat format)
+        {
+            if (format == ImageFormat.Jpeg) return ".jpg";
+            else if (format == ImageFormat.Bmp) return ".bmp";
+            else return "";
+        }
+
         private void makePhotoClick()
         { 
             string path="p.jpg";
 
-            if (checkBox2.Checked)
-            {
-                var sfd = new SaveFileDialog();
-                sfd.Filter = "JPG Files|*.jpg";
-                if (sfd.ShowDialog() == DialogResult.OK)
+            if (this.photoSelectDestination)
+            { 
+                 
+                sfdPhoto.Filter = getDialogFilter(photoImageFormat);
+                if (sfdPhoto.ShowDialog() == DialogResult.OK)
                 {
-                    path = sfd.FileName;
+                    path = sfdPhoto.FileName;
                 }
             }
             else
@@ -930,40 +956,24 @@ namespace Aldyparen
                 int n = 1;
                 while (true)
                 {
-                    path = Application.StartupPath+"\\Output\\picture" + n.ToString() + ".jpg";
-
-                    if (checkBoxBMP.Checked)
-                    {
-                        path = Application.StartupPath + "\\Output\\picture" + n.ToString() + ".bmp";
-                    }
-
+                    path = Application.StartupPath+"\\Output\\picture" + n.ToString() + getFromatExtension(photoImageFormat);
                     if (!System.IO.File.Exists(path)) break;
                     n++;
                 }
             }
 
             Frame fr = curFrame.clone();
-            
-
-            string label = "";
-            if (checkBox3.Checked)
-            {
-                label = String.Format("Pos:({0:e5};{1:e5}).Width:{2:e5}",fr.ctr.Real,fr.ctr.Imaginary,fr);
-            }
+             
 
             pictureBox2.Image.Save(path);
 
             photoParameters param=new photoParameters();
             param._frame= fr;
-            param._W=(int)numericUpDown4.Value/2;
-            param._H= (int)numericUpDown3.Value/2;
+            param._W= photoWidth/2;
+            param._H= photoHeight/2;
             param.path = path;
-            param.label=label;
-
-            if (checkBoxBMP.Checked)
-            {
-                param.format = ImageFormat.Bmp;
-            }
+            param.label = photoLabel;
+            param.format = photoImageFormat;
 
 
             bool separThread = true;
@@ -982,15 +992,7 @@ namespace Aldyparen
 
         #endregion
          
-
-       
-  
          
-
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        { 
-            textBox1.Enabled = checkBox3.Checked;
-        }
 
         private void setArea()
         {
@@ -1158,12 +1160,12 @@ namespace Aldyparen
 
         private void remove1FrameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            removeLastFrame();
+            removeLastFrames(1);
         }
 
         private void remove10ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            removeLastTenFrames();
+            removeLastFrames(10);
         }
 
         private void makeAnimationToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1192,19 +1194,7 @@ namespace Aldyparen
             MessageBox.Show("You can get manual on the page of the project: http://fedimser.github.io/aldyparen.html");
         }
 
-        private void gridToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            gridToolStripMenuItem.Checked = !gridToolStripMenuItem.Checked;
-            gridRight.useGrid = gridToolStripMenuItem.Checked;
-            refreshRightPicture();
-        }
-
-        private void annotationToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            annotationToolStripMenuItem.Checked = !annotationToolStripMenuItem.Checked;
-            gridRight.annotate = annotationToolStripMenuItem.Checked;
-            refreshRightPicture();
-        }
+       
 
         private void panelAnnotationColor_Click(object sender, EventArgs e)
         {
@@ -1226,23 +1216,30 @@ namespace Aldyparen
         SaveFileDialog sfdProject = new SaveFileDialog();
         OpenFileDialog ofdProject = new OpenFileDialog();
         String currentProjectFile = null;
+        private bool currentProjectModified = false;
 
 
         private bool createNewProject()
         {
-            if (frameCount != 0)
+            if (!askForSavingCurrent()) return false;
+            startWork();
+            return true;
+        }
+
+        private bool askForSavingCurrent()
+        {
+            if (frameCount != 0 && currentProjectModified)
             {
                 var res = MessageBox.Show("Do you want to save changes to current project?",
                     "", MessageBoxButtons.YesNoCancel);
                 if (res == System.Windows.Forms.DialogResult.Cancel) return false;
-                if (res == System.Windows.Forms.DialogResult.Yes) {
+                if (res == System.Windows.Forms.DialogResult.Yes)
+                {
                     if (!saveProject()) return false;
                 }
-
+                return true;
             }
-
-            startWork();
-            return true;
+            else return true;
         }
 
         void prepareDialogs()
@@ -1252,6 +1249,8 @@ namespace Aldyparen
 
             ofdProject.Filter = "Aldyparen Projects|*.adp";
             ofdProject.InitialDirectory = Application.StartupPath;
+
+            sfdPhoto.InitialDirectory = Application.StartupPath;
         }
 
         private bool saveProject()
@@ -1264,6 +1263,7 @@ namespace Aldyparen
             {
                 Movie movie = new Movie(frames, frameCount);
                 movie.save(currentProjectFile);
+                currentProjectModified = false;
                 return true;
             }
         }
@@ -1281,17 +1281,21 @@ namespace Aldyparen
                 Movie movie = new Movie(frames, frameCount);
                 movie.save(sfdProject.FileName);
                 currentProjectFile = sfdProject.FileName;
+                currentProjectModified = false;
                 return true;
             }
             return false;
         }
 
-        private bool openProject()
-        {   
-            if (ofdProject.ShowDialog() == DialogResult.OK)
+        private bool openProject(string fileName)
+        {
+            timer1.Stop();
+            bool OK = false;
+            try
             {
-                Movie movie = Movie.load(ofdProject.FileName);
-                currentProjectFile = ofdProject.FileName;
+                //labelCurFrameInfo.Text = "Loading project...";
+                Movie movie = Movie.load(fileName);
+                currentProjectFile = fileName;
                 frameCount = movie.frames.Length;
                 for (int i = 0; i < frameCount; ++i)
                 {
@@ -1305,7 +1309,26 @@ namespace Aldyparen
                 {
                     textBoxFormula.Text = curFrame.param.genFunc.getText();
                 }
-                return true;
+                currentProjectModified = false;
+                OK = true;
+            }
+            catch (Exception ex)
+            {
+                //
+            }
+            finally
+            { 
+                timer1.Start();
+            }
+            return OK;
+        }
+
+        private bool openProject()
+        {
+            if (!askForSavingCurrent()) return false;
+            if (ofdProject.ShowDialog() == DialogResult.OK)
+            {
+                return openProject(ofdProject.FileName);
             }
             return false;
         }
@@ -1348,8 +1371,32 @@ namespace Aldyparen
             Application.Exit();
         }
 
-#endregion
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!askForSavingCurrent())
+            {
+                e.Cancel = true;
+                return;
+            }
+            Environment.Exit(0);
+        }
 
+
+        private void gridToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            item.Checked = !item.Checked;
+            gridRight.useGrid = gridToolStripMenuItem.Checked;
+            gridRight.useTicks = ticksToolStripMenuItem.Checked;
+            gridRight.useAxes = axesToolStripMenuItem.Checked;
+            gridRight.annotate = annotationToolStripMenuItem.Checked;
+            refreshRightPicture();
+        }
+         
+
+#endregion
+ 
+        
     
 
 

@@ -24,6 +24,7 @@ namespace Aldyparen
         private static GPGPU gpu;
         public static bool enabled = false;
         public static bool corrupted = false;
+        public static bool busy = false;
         public static bool rowScan = false;
  
         public static String errorMessage;
@@ -39,6 +40,7 @@ namespace Aldyparen
                 Console.WriteLine("GPU OK");
                 gpu.LoadModule(km);
                 enabled = true;
+                busy = false;
                 return true;
             }
             catch (Exception ex)
@@ -116,11 +118,13 @@ namespace Aldyparen
 
             if (corrupted)
             {
-                throw new Exception("You must restart application id you want to use CUDA!");
+                throw new Exception("You must restart application if you want to use CUDA!");
             }
 
             try
             {
+                busy = true;
+
                 if (!gpu.IsCurrentContext)
                 {
                     gpu.SetCurrentContext();
@@ -229,11 +233,13 @@ namespace Aldyparen
 
 
                 bmp.UnlockBits(bd);
+                busy = false;
                 return bmp;
             }
             catch (Exception ex)
             {
                 corrupted = true;
+                throw ex;
                 return null;
             }      
           

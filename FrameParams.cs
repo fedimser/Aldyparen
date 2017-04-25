@@ -41,6 +41,10 @@ namespace Aldyparen
                 ret.k[i] = this.k[i] + (newParams.k[i] - this.k[i]) * step;
             }
 
+            ret.genInfty = newParams.genInfty;
+            ret.genSteps = newParams.genSteps;
+            ret.genInit = newParams.genInit;
+
             return ret;
         }
          

@@ -44,15 +44,28 @@
             this.label6 = new System.Windows.Forms.Label();
             this.numericUpDownFPS = new System.Windows.Forms.NumericUpDown();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.numericUpDownVideoWidth = new System.Windows.Forms.NumericUpDown();
-            this.label7 = new System.Windows.Forms.Label();
             this.numericUpDownVideoHeight = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
+            this.numericUpDownVideoWidth = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBoxPhotoLabel = new System.Windows.Forms.TextBox();
+            this.checkBoxPhotoLabel = new System.Windows.Forms.CheckBox();
+            this.checkBoxPhotoSelectDestnation = new System.Windows.Forms.CheckBox();
+            this.numericUpDownPhotoWidth = new System.Windows.Forms.NumericUpDown();
+            this.label9 = new System.Windows.Forms.Label();
+            this.numericUpDownPhotoHeight = new System.Windows.Forms.NumericUpDown();
+            this.label10 = new System.Windows.Forms.Label();
+            this.radioButtonJPEG = new System.Windows.Forms.RadioButton();
+            this.radioButtonBMP = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFPS)).BeginInit();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVideoWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVideoHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVideoWidth)).BeginInit();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoHeight)).BeginInit();
             this.SuspendLayout();
             // 
             // checkBoxRealTime
@@ -213,37 +226,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Video";
             // 
-            // numericUpDownVideoWidth
-            // 
-            this.numericUpDownVideoWidth.Location = new System.Drawing.Point(70, 68);
-            this.numericUpDownVideoWidth.Maximum = new decimal(new int[] {
-            2000,
-            0,
-            0,
-            0});
-            this.numericUpDownVideoWidth.Minimum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numericUpDownVideoWidth.Name = "numericUpDownVideoWidth";
-            this.numericUpDownVideoWidth.Size = new System.Drawing.Size(66, 26);
-            this.numericUpDownVideoWidth.TabIndex = 7;
-            this.numericUpDownVideoWidth.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 70);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(50, 20);
-            this.label7.TabIndex = 6;
-            this.label7.Text = "Width";
-            // 
             // numericUpDownVideoHeight
             // 
             this.numericUpDownVideoHeight.Location = new System.Drawing.Point(70, 100);
@@ -275,11 +257,171 @@
             this.label8.TabIndex = 8;
             this.label8.Text = "Height";
             // 
+            // numericUpDownVideoWidth
+            // 
+            this.numericUpDownVideoWidth.Location = new System.Drawing.Point(70, 68);
+            this.numericUpDownVideoWidth.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.numericUpDownVideoWidth.Minimum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.numericUpDownVideoWidth.Name = "numericUpDownVideoWidth";
+            this.numericUpDownVideoWidth.Size = new System.Drawing.Size(66, 26);
+            this.numericUpDownVideoWidth.TabIndex = 7;
+            this.numericUpDownVideoWidth.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 70);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(50, 20);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "Width";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.radioButtonBMP);
+            this.groupBox3.Controls.Add(this.radioButtonJPEG);
+            this.groupBox3.Controls.Add(this.label10);
+            this.groupBox3.Controls.Add(this.textBoxPhotoLabel);
+            this.groupBox3.Controls.Add(this.checkBoxPhotoLabel);
+            this.groupBox3.Controls.Add(this.checkBoxPhotoSelectDestnation);
+            this.groupBox3.Controls.Add(this.numericUpDownPhotoWidth);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.numericUpDownPhotoHeight);
+            this.groupBox3.Location = new System.Drawing.Point(509, 26);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox3.Size = new System.Drawing.Size(262, 149);
+            this.groupBox3.TabIndex = 52;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Photo settings";
+            // 
+            // textBoxPhotoLabel
+            // 
+            this.textBoxPhotoLabel.Enabled = false;
+            this.textBoxPhotoLabel.Location = new System.Drawing.Point(72, 78);
+            this.textBoxPhotoLabel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxPhotoLabel.Name = "textBoxPhotoLabel";
+            this.textBoxPhotoLabel.Size = new System.Drawing.Size(145, 26);
+            this.textBoxPhotoLabel.TabIndex = 45;
+            // 
+            // checkBoxPhotoLabel
+            // 
+            this.checkBoxPhotoLabel.AutoSize = true;
+            this.checkBoxPhotoLabel.Location = new System.Drawing.Point(8, 78);
+            this.checkBoxPhotoLabel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.checkBoxPhotoLabel.Name = "checkBoxPhotoLabel";
+            this.checkBoxPhotoLabel.Size = new System.Drawing.Size(68, 24);
+            this.checkBoxPhotoLabel.TabIndex = 44;
+            this.checkBoxPhotoLabel.Text = "Title:";
+            this.checkBoxPhotoLabel.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxPhotoSelectDestnation
+            // 
+            this.checkBoxPhotoSelectDestnation.AutoSize = true;
+            this.checkBoxPhotoSelectDestnation.Location = new System.Drawing.Point(8, 53);
+            this.checkBoxPhotoSelectDestnation.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.checkBoxPhotoSelectDestnation.Name = "checkBoxPhotoSelectDestnation";
+            this.checkBoxPhotoSelectDestnation.Size = new System.Drawing.Size(162, 24);
+            this.checkBoxPhotoSelectDestnation.TabIndex = 43;
+            this.checkBoxPhotoSelectDestnation.Text = "Select destination";
+            this.checkBoxPhotoSelectDestnation.UseVisualStyleBackColor = true;
+            // 
+            // numericUpDownPhotoWidth
+            // 
+            this.numericUpDownPhotoWidth.Location = new System.Drawing.Point(55, 22);
+            this.numericUpDownPhotoWidth.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.numericUpDownPhotoWidth.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.numericUpDownPhotoWidth.Name = "numericUpDownPhotoWidth";
+            this.numericUpDownPhotoWidth.Size = new System.Drawing.Size(84, 26);
+            this.numericUpDownPhotoWidth.TabIndex = 40;
+            this.numericUpDownPhotoWidth.Value = new decimal(new int[] {
+            1920,
+            0,
+            0,
+            0});
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(7, 24);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(40, 20);
+            this.label9.TabIndex = 39;
+            this.label9.Text = "Size";
+            // 
+            // numericUpDownPhotoHeight
+            // 
+            this.numericUpDownPhotoHeight.Location = new System.Drawing.Point(147, 22);
+            this.numericUpDownPhotoHeight.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.numericUpDownPhotoHeight.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.numericUpDownPhotoHeight.Name = "numericUpDownPhotoHeight";
+            this.numericUpDownPhotoHeight.Size = new System.Drawing.Size(84, 26);
+            this.numericUpDownPhotoHeight.TabIndex = 42;
+            this.numericUpDownPhotoHeight.Value = new decimal(new int[] {
+            1080,
+            0,
+            0,
+            0});
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(11, 115);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(60, 20);
+            this.label10.TabIndex = 47;
+            this.label10.Text = "Format";
+            // 
+            // radioButtonJPEG
+            // 
+            this.radioButtonJPEG.AutoSize = true;
+            this.radioButtonJPEG.Location = new System.Drawing.Point(77, 113);
+            this.radioButtonJPEG.Name = "radioButtonJPEG";
+            this.radioButtonJPEG.Size = new System.Drawing.Size(65, 24);
+            this.radioButtonJPEG.TabIndex = 48;
+            this.radioButtonJPEG.TabStop = true;
+            this.radioButtonJPEG.Text = "JPG";
+            this.radioButtonJPEG.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonBMP
+            // 
+            this.radioButtonBMP.AutoSize = true;
+            this.radioButtonBMP.Location = new System.Drawing.Point(152, 113);
+            this.radioButtonBMP.Name = "radioButtonBMP";
+            this.radioButtonBMP.Size = new System.Drawing.Size(68, 24);
+            this.radioButtonBMP.TabIndex = 49;
+            this.radioButtonBMP.TabStop = true;
+            this.radioButtonBMP.Text = "BMP";
+            this.radioButtonBMP.UseVisualStyleBackColor = true;
+            // 
             // FormSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(538, 295);
+            this.ClientSize = new System.Drawing.Size(821, 295);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button1);
@@ -292,8 +434,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFPS)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVideoWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVideoHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVideoWidth)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoHeight)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -321,5 +467,15 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown numericUpDownVideoWidth;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox textBoxPhotoLabel;
+        private System.Windows.Forms.CheckBox checkBoxPhotoLabel;
+        private System.Windows.Forms.CheckBox checkBoxPhotoSelectDestnation;
+        private System.Windows.Forms.NumericUpDown numericUpDownPhotoWidth;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.NumericUpDown numericUpDownPhotoHeight;
+        private System.Windows.Forms.RadioButton radioButtonBMP;
+        private System.Windows.Forms.RadioButton radioButtonJPEG;
+        private System.Windows.Forms.Label label10;
     }
 }

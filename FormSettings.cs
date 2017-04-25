@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
+using System.Drawing.Imaging;
 using System.Numerics;
 
 namespace Aldyparen
@@ -28,19 +29,45 @@ namespace Aldyparen
             textBoxInitX.Text = formMain.curFrame.param.genInit.Real.ToString();
             textBoxInitY.Text = formMain.curFrame.param.genInit.Imaginary.ToString();
 
+
+            // Video Settings
             numericUpDownFPS.Value = formMain.FPS;
             numericUpDownVideoHeight.Value = formMain.videoHeight;
             numericUpDownVideoWidth.Value = formMain.videoWidth;
+
+            //Photo settings
+            numericUpDownPhotoHeight.Value = formMain.photoHeight;
+            numericUpDownPhotoWidth.Value = formMain.photoWidth;
+            checkBoxPhotoLabel.Checked = (formMain.photoLabel != null);
+            textBoxPhotoLabel.Text = formMain.photoLabel;
+            checkBoxPhotoSelectDestnation.Checked = formMain.photoSelectDestination;
+            radioButtonJPEG.Checked = (formMain.photoImageFormat == ImageFormat.Jpeg);
+            radioButtonBMP.Checked = (formMain.photoImageFormat == ImageFormat.Bmp);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                formMain.realTimeApplying = checkBoxRealTime.Checked;
+                //Save Photo Settings
+                formMain.photoHeight = (int)numericUpDownPhotoHeight.Value;
+                formMain.photoWidth = (int)numericUpDownPhotoWidth.Value;
+                if (checkBoxPhotoLabel.Checked)
+                    formMain.photoLabel = textBoxPhotoLabel.Text;
+                else
+                    formMain.photoLabel = null;
+                formMain.photoSelectDestination = checkBoxPhotoSelectDestnation.Checked;
+                if (radioButtonBMP.Checked) formMain.photoImageFormat = ImageFormat.Bmp;
+                if (radioButtonJPEG.Checked) formMain.photoImageFormat = ImageFormat.Jpeg;
+
+                //Save Video Settings
                 formMain.FPS = (int)numericUpDownFPS.Value;
                 formMain.videoHeight = (int)numericUpDownVideoHeight.Value;
                 formMain.videoWidth = (int)numericUpDownVideoWidth.Value;
+
+                formMain.realTimeApplying = checkBoxRealTime.Checked;
+                
+
 
                 var v1  = new Complex(Convert.ToDouble(textBoxInitX.Text), Convert.ToDouble(textBoxInitY.Text));
                 var v2 = Convert.ToDouble(textBoxInfty.Text);
