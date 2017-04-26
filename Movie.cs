@@ -9,17 +9,23 @@ using System.Runtime.Serialization;
 namespace Aldyparen
 {
     [Serializable]
-    class Movie
+    public class Movie
     {
-        public Frame[] frames;
-        
+        private List<Frame> frames;
 
-
-        public Movie(Frame[] _frames, int count)
+        public Movie()
         {
-            frames = new Frame[count];
-            for (int i = 0; i < count; i++)
-                frames[i] = _frames[i];
+            frames = new List<Frame>();
+        } 
+
+        
+        public Movie(Movie movie)
+        {
+            frames = new List<Frame>();
+            foreach (Frame frame in movie.frames)
+            {
+                frames.Add(frame.clone());
+            }
         }
 
         public void save(String fileName)
@@ -42,5 +48,35 @@ namespace Aldyparen
             stream.Close();
             return obj;
         }
+
+        public void appendFrame(Frame frame)
+        {
+            frames.Add(frame);
+        }
+
+        public Frame this[int i]
+        {
+            get {
+                if (i < 0) i = frames.Count + i;
+                return frames[i]; 
+            }
+            //set { InnerList[i] = value; }
+        }
+
+        public int frameCount()
+        {
+            return frames.Count;
+        }
+
+        public void removeFrames(int start, int end)
+        {
+            if (start >= end) return;
+            if (start < 0) start = 0;
+            if (end > frames.Count) end = frames.Count;
+
+            if (end == start + 1) frames.RemoveAt(start);
+            else frames.RemoveRange(start, end - start);
+        } 
+
     }
 }

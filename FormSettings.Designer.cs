@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.checkBoxRealTime = new System.Windows.Forms.CheckBox();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormSettings));
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -49,15 +49,15 @@
             this.numericUpDownVideoWidth = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.radioButtonBMP = new System.Windows.Forms.RadioButton();
+            this.radioButtonJPEG = new System.Windows.Forms.RadioButton();
+            this.label10 = new System.Windows.Forms.Label();
             this.textBoxPhotoLabel = new System.Windows.Forms.TextBox();
             this.checkBoxPhotoLabel = new System.Windows.Forms.CheckBox();
             this.checkBoxPhotoSelectDestnation = new System.Windows.Forms.CheckBox();
             this.numericUpDownPhotoWidth = new System.Windows.Forms.NumericUpDown();
             this.label9 = new System.Windows.Forms.Label();
             this.numericUpDownPhotoHeight = new System.Windows.Forms.NumericUpDown();
-            this.label10 = new System.Windows.Forms.Label();
-            this.radioButtonJPEG = new System.Windows.Forms.RadioButton();
-            this.radioButtonBMP = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFPS)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -68,19 +68,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoHeight)).BeginInit();
             this.SuspendLayout();
             // 
-            // checkBoxRealTime
-            // 
-            this.checkBoxRealTime.AutoSize = true;
-            this.checkBoxRealTime.Location = new System.Drawing.Point(12, 181);
-            this.checkBoxRealTime.Name = "checkBoxRealTime";
-            this.checkBoxRealTime.Size = new System.Drawing.Size(165, 24);
-            this.checkBoxRealTime.TabIndex = 0;
-            this.checkBoxRealTime.Text = "Real-time applying";
-            this.checkBoxRealTime.UseVisualStyleBackColor = true;
-            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(214, 232);
+            this.button1.Location = new System.Drawing.Point(266, 181);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(106, 48);
             this.button1.TabIndex = 1;
@@ -219,12 +209,12 @@
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.numericUpDownFPS);
             this.groupBox2.Controls.Add(this.label6);
-            this.groupBox2.Location = new System.Drawing.Point(252, 12);
+            this.groupBox2.Location = new System.Drawing.Point(236, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(240, 163);
+            this.groupBox2.Size = new System.Drawing.Size(162, 163);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Video";
+            this.groupBox2.Text = "Video settings";
             // 
             // numericUpDownVideoHeight
             // 
@@ -299,14 +289,45 @@
             this.groupBox3.Controls.Add(this.numericUpDownPhotoWidth);
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.numericUpDownPhotoHeight);
-            this.groupBox3.Location = new System.Drawing.Point(509, 26);
+            this.groupBox3.Location = new System.Drawing.Point(405, 14);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox3.Size = new System.Drawing.Size(262, 149);
+            this.groupBox3.Size = new System.Drawing.Size(247, 161);
             this.groupBox3.TabIndex = 52;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Photo settings";
+            // 
+            // radioButtonBMP
+            // 
+            this.radioButtonBMP.AutoSize = true;
+            this.radioButtonBMP.Location = new System.Drawing.Point(152, 113);
+            this.radioButtonBMP.Name = "radioButtonBMP";
+            this.radioButtonBMP.Size = new System.Drawing.Size(68, 24);
+            this.radioButtonBMP.TabIndex = 49;
+            this.radioButtonBMP.TabStop = true;
+            this.radioButtonBMP.Text = "BMP";
+            this.radioButtonBMP.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonJPEG
+            // 
+            this.radioButtonJPEG.AutoSize = true;
+            this.radioButtonJPEG.Location = new System.Drawing.Point(77, 113);
+            this.radioButtonJPEG.Name = "radioButtonJPEG";
+            this.radioButtonJPEG.Size = new System.Drawing.Size(65, 24);
+            this.radioButtonJPEG.TabIndex = 48;
+            this.radioButtonJPEG.TabStop = true;
+            this.radioButtonJPEG.Text = "JPG";
+            this.radioButtonJPEG.UseVisualStyleBackColor = true;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(11, 115);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(60, 20);
+            this.label10.TabIndex = 47;
+            this.label10.Text = "Format";
             // 
             // textBoxPhotoLabel
             // 
@@ -385,49 +406,18 @@
             0,
             0});
             // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(11, 115);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(60, 20);
-            this.label10.TabIndex = 47;
-            this.label10.Text = "Format";
-            // 
-            // radioButtonJPEG
-            // 
-            this.radioButtonJPEG.AutoSize = true;
-            this.radioButtonJPEG.Location = new System.Drawing.Point(77, 113);
-            this.radioButtonJPEG.Name = "radioButtonJPEG";
-            this.radioButtonJPEG.Size = new System.Drawing.Size(65, 24);
-            this.radioButtonJPEG.TabIndex = 48;
-            this.radioButtonJPEG.TabStop = true;
-            this.radioButtonJPEG.Text = "JPG";
-            this.radioButtonJPEG.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonBMP
-            // 
-            this.radioButtonBMP.AutoSize = true;
-            this.radioButtonBMP.Location = new System.Drawing.Point(152, 113);
-            this.radioButtonBMP.Name = "radioButtonBMP";
-            this.radioButtonBMP.Size = new System.Drawing.Size(68, 24);
-            this.radioButtonBMP.TabIndex = 49;
-            this.radioButtonBMP.TabStop = true;
-            this.radioButtonBMP.Text = "BMP";
-            this.radioButtonBMP.UseVisualStyleBackColor = true;
-            // 
             // FormSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(821, 295);
+            this.ClientSize = new System.Drawing.Size(673, 237);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.checkBoxRealTime);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormSettings";
-            this.Text = "FormSettings";
+            this.Text = "Aldyparen Settings";
             this.Load += new System.EventHandler(this.FormSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -441,13 +431,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPhotoHeight)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.CheckBox checkBoxRealTime;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox1;

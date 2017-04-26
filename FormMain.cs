@@ -18,14 +18,11 @@ namespace Aldyparen
     public partial class FormMain : Form
     {
 
-        public Frame curFrame;
-        public bool curFrameChanged = false;
+        public Frame workFrame;
+        public bool workFrameChanged = false;
+        Movie movie;
 
-        Frame[] frames; 
-        int frameCount=0;
-
-        Grid gridRight = new Grid();
-        Boolean useAnnotation = false;
+        Grid grid = new Grid(); 
 
 
         public FormMain()
@@ -34,19 +31,15 @@ namespace Aldyparen
         }
 
         string applicationTitle = "Algebraic Dynamic Parametric Renderer";
-             
-        int W,H;
+              
         public int FPS = 16;
         int halfWidth = 160;
-        int halfHeight = 90; 
-        int AnimLength;
-        double ScreenScale;
+        int halfHeight = 90;   
 
 
 
 
         //Settings
-        public bool realTimeApplying=false;
         public bool isNowVideoSaving = false;
         public string statusFrames = "";
         public string[] arguments;
@@ -59,57 +52,64 @@ namespace Aldyparen
 
         private void makeAnimation()
         {
-            Frame f = lastFrame().clone();
+
+
+            int AnimLength = Convert.ToInt32(numericUpDown1.Value);
+
+            Frame f = movie[-1].clone();
             int S = (int)numericUpDownDiv.Value;
 
 
             for (int i = 1; i <= AnimLength; i++)
             {
-                f = f.getMove(curFrame, 1.0 / (AnimLength - i + 1));
+                f = f.getMove(workFrame, 1.0 / (AnimLength - i + 1));
                 f.moveColors(S);
-
-                frames[frameCount] = f;
-                frameCount++;
+                movie.appendFrame(f);
             }
-
-
-            showFrame = frameCount - 1;
+             
+            showFrame = movie.frameCount() - 1;
             refreshLeftPicture();
             currentProjectModified = true;
-        }
-
-
-        private Frame lastFrame()
-        {
-            return frames[frameCount - 1];
-        }
-
+            refreshWindow();
+        } 
        
 
         void addFrame(Frame f)
         {
-            frames[frameCount] = f;
-            frameCount++;
+            movie.appendFrame(f);
 
-            showFrame = frameCount - 1;
+            showFrame = movie.frameCount() - 1;
             refreshLeftPicture();
             currentProjectModified = true;
+            refreshWindow();
+        }
+
+        void removeFrames(int start, int end)
+        {
+            movie.removeFrames(start, end);
+            if (showFrame >= movie.frameCount()) showFrame = movie.frameCount() - 1;
+
+            refreshLeftPicture();
+            currentProjectModified = true;
+            refreshWindow();
         }
          
 
-        void startWork()
+        bool createNewProject()
         {
-            ScreenScale = Math.Max(2.0 * W / pictureBox1.Width, 2.0 * H / pictureBox2.Height);
-             
-            frames = new Frame[10000];
-            frameCount = 0;
-             
-            //addFrame(curFrame.clone());            
-            curFrameChanged = true;
-            currentProjectModified = true;
+            if (movie != null && !askForSavingCurrent()) return false;
 
-            panel1.BackColor = curFrame.colorMap[(int)numericUpDown10.Value];
+            movie = new Movie();
+                       
+            workFrameChanged = true;
+            currentProjectModified = false;
+            currentProjectFile = null;
+            
+            
             pictureBox1.Image = null;
+
+            refreshWindow();
+            return true;
         }
          
          
@@ -128,13 +128,13 @@ namespace Aldyparen
             {
                 return new PointF(z.X - pictureBox2.Left, z.Y - pictureBox2.Top);
             } else {
-                Size curFrameSize = curFrame.getSize();
-                float ZoomScale = Math.Min(1.0F*pictureBox2.Width / curFrameSize.Width, 1.0F*pictureBox2.Height / curFrameSize.Height);
+                Size workFrameSize = workFrame.getSize();
+                float ZoomScale = Math.Min(1.0F*pictureBox2.Width / workFrameSize.Width, 1.0F*pictureBox2.Height / workFrameSize.Height);
 
                 float realX = z.X - (pictureBox2.Left + 0.5F * pictureBox2.Width);
                 float realY = z.Y - (pictureBox2.Top + 0.5F * pictureBox2.Height);
 
-                return new PointF(realX/ZoomScale + 0.5F*curFrameSize.Width, realY/ZoomScale+0.5F*curFrameSize.Height);
+                return new PointF(realX/ZoomScale + 0.5F*workFrameSize.Width, realY/ZoomScale+0.5F*workFrameSize.Height);
             }
         }
 
@@ -144,28 +144,28 @@ namespace Aldyparen
         {
             try
             {
-                curFrame.restoreTransform(lastFrame());
+                workFrame.restoreTransform(movie[-1]);
             }
             catch (Exception e)
             {
-                curFrame.ctr = 0;
-                curFrame.scale = 1;
+                workFrame.ctr = 0;
+                workFrame.scale = 1;
             }
-                curFrameChanged = true;
+            workFrameChanged = true;
         }
 
         void resetParams()
         {
-            curFrame.param = lastFrame().param.clone();
-            curFrameChanged = true;
+            workFrame.param = movie[-1].param.clone();
+            workFrameChanged = true;
         }
 
 
 
         void refreshRightPicture()
         { 
-             pictureBox2.Image = curFrame.getFrame(halfWidth, halfHeight, gridRight); 
-             curFrameChanged = false;
+             pictureBox2.Image = workFrame.getFrame(halfWidth, halfHeight, grid); 
+             workFrameChanged = false;
         }
 
          
@@ -173,7 +173,7 @@ namespace Aldyparen
         private void pictureBox2_MouseWheel(object sender,MouseEventArgs e)
         {
             double delta = -Math.Sign(e.Delta);
-            Complex pole = curFrame.pictureToMath(getMousePosition());
+            Complex pole = workFrame.pictureToMath(getMousePosition());
             
             
             if ((Control.ModifierKeys & Keys.Shift) != 0) delta *= 20;
@@ -182,9 +182,9 @@ namespace Aldyparen
             if ((Control.ModifierKeys & Keys.Control) != 0)
             {
                 delta = 2 * 0.017453292 * delta;
-                curFrame.rotation += delta; 
-                curFrame.ctr = pole + (curFrame.ctr-pole)*Complex.Exp(Complex.ImaginaryOne*delta);
-                curFrameChanged = true;
+                workFrame.rotation += delta; 
+                workFrame.ctr = pole + (workFrame.ctr-pole)*Complex.Exp(Complex.ImaginaryOne*delta);
+                workFrameChanged = true;
                 return;
             }
 
@@ -192,10 +192,10 @@ namespace Aldyparen
 
 
 
-            curFrame.ctr = pole - (pole - curFrame.ctr) * k;
-            curFrame.scale = curFrame.scale * k;
+            workFrame.ctr = pole - (pole - workFrame.ctr) * k;
+            workFrame.scale = workFrame.scale * k;
 
-            curFrameChanged = true;
+            workFrameChanged = true;
         }
 
         private void pictureBox2_MouseHover(object sender, EventArgs e)
@@ -231,10 +231,10 @@ namespace Aldyparen
             Point p = Cursor.Position;
 
             Complex dx = new Complex(p.X - last_tracling_cursor_position.X, p.Y - last_tracling_cursor_position.Y);
-            curFrame.ctr -= (2.0 / pictureBox2.Width) * Complex.Exp(Complex.ImaginaryOne*curFrame.rotation)*curFrame.scale * dx;
+            workFrame.ctr -= (2.0 / pictureBox2.Width) * Complex.Exp(Complex.ImaginaryOne*workFrame.rotation)*workFrame.scale * dx;
 
             last_tracling_cursor_position = p;
-            curFrameChanged = true;
+            workFrameChanged = true;
         }
 
 
@@ -242,6 +242,8 @@ namespace Aldyparen
 
 
         #region "Video"
+
+        SaveFileDialog sfdVideo = new SaveFileDialog();
 
         public int videoWidth = 720;
         public int videoHeight = 540;
@@ -254,30 +256,15 @@ namespace Aldyparen
                 return;
             }
 
-            if (!Directory.Exists("Output\\Video"))
-            {
-                Directory.CreateDirectory("Output\\Video");
-            }
+            if (sfdVideo.ShowDialog() != DialogResult.OK) return;
+           
 
-            var p= new VideoParameters();
-
+            var p = new VideoParameters();
             p.halfWidth = videoWidth / 2;
             p.halfHeight = videoHeight / 2;
-
-            string name = DateTime.Now.ToString().Replace(":", "");
-
-            p.path = "Output\\Video\\" + name + ".avi";
- 
-
+            p.path = sfdVideo.FileName;
             p.FPS = this.FPS;
-
-            p.frameCount = frameCount;
-            p.frames = new Frame[frameCount];
-            
-            for (int i = 0; i < frameCount; i++)
-            {
-                p.frames[i] = frames[i];
-            }
+            p.movie = movie;
 
             Thread t = new Thread(makeVideo);
             t.Start(p);         
@@ -286,8 +273,7 @@ namespace Aldyparen
 
         public class VideoParameters
         {
-            public Frame[] frames;
-            public int frameCount;
+            public Movie movie; 
             public int halfWidth;
             public int halfHeight;
             public string path;
@@ -308,11 +294,12 @@ namespace Aldyparen
             wr.FrameRate = Convert.ToInt32(param.FPS);
             wr.Open(param.path, 2*param.halfWidth,2* param.halfHeight);
 
+            int frameCount = param.movie.frameCount();
             for (int i = 0; i < frameCount; i++)
             {
-                wr.AddFrame(param.frames[i].getFrame(param.halfWidth, param.halfHeight,gridRight));
-                Console.WriteLine("Frame {0} out of {1} is done!", i + 1, param.frameCount);
-                statusFrames = String.Format("{0}/{1}", i + 1, param.frameCount);
+                wr.AddFrame(param.movie[i].getFrame(param.halfWidth, param.halfHeight,grid));
+                Console.WriteLine("Frame {0} out of {1} is done!", i + 1, frameCount);
+                statusFrames = String.Format("{0}/{1}", i + 1, frameCount);
             }
 
             wr.Close();
@@ -333,7 +320,7 @@ namespace Aldyparen
 
         private void reset_values_list()
         {
-            values = new Complex[curFrame.param.maxUsedColors];
+            values = new Complex[workFrame.param.maxUsedColors];
             values_cnt = 0;
         }
 
@@ -341,7 +328,7 @@ namespace Aldyparen
         {
             for (int i = 0; i < values_cnt; i++) if (Math.Abs(x.Real - values[i].Real) + Math.Abs(x.Imaginary - values[i].Imaginary) < 1e-8) return i;
 
-            if (values_cnt == curFrame.param.maxUsedColors) return values_cnt - 1;
+            if (values_cnt == workFrame.param.maxUsedColors) return values_cnt - 1;
 
             values[values_cnt] = x;
             values_cnt++;
@@ -361,12 +348,12 @@ namespace Aldyparen
 
         string getShowFrameInfo()
         {
-            if (frameCount == 0) return "No frames";
+            if (movie.frameCount()==0) return "No frames";
              
-            Frame f = frames[showFrame];
+            Frame f = movie[showFrame];
             return String.Format("Frame {0}/{1}\n Time {2:0.##}\n"+ 
                 "scale {3:e2}\n" + "center ({4:e2};{5:e2})\n{6}",
-                showFrame+1, frameCount, showFrame / FPS, f.scale, f.ctr.Real, f.ctr.Imaginary,
+                showFrame+1, movie.frameCount(), showFrame / FPS, f.scale, f.ctr.Real, f.ctr.Imaginary,
                 f.getAnnotation()
             );
         }
@@ -374,11 +361,18 @@ namespace Aldyparen
         
         void refreshLeftPicture()
         {
-            hScrollBarFrames.Maximum = frameCount-1;
-            hScrollBarFrames.Value = showFrame;
-            
-            pictureBox1.Image = frames[showFrame].getFrame(halfWidth, halfHeight, gridRight);
-            
+            if (movie.frameCount() == 0)
+            {
+                pictureBox1.Image = null;
+                hScrollBarFrames.Hide();
+            }
+            else
+            {
+                hScrollBarFrames.Show();
+                hScrollBarFrames.Maximum = movie.frameCount() - 1;
+                hScrollBarFrames.Value = showFrame;
+                pictureBox1.Image = movie[showFrame].getFrame(halfWidth, halfHeight, grid);
+            }
         }
 
 
@@ -387,6 +381,7 @@ namespace Aldyparen
         {
             showFrame = hScrollBarFrames.Value;
             refreshLeftPicture();
+            refreshWindow();
         }
          
 
@@ -394,41 +389,57 @@ namespace Aldyparen
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (arguments!=null && arguments.Length == 1)
-            {
-                string fileName = arguments[0];
-                arguments = null;
-                if (!openProject(fileName))
-                {
-                    MessageBox.Show("Coluldn't load project");
-                } 
-            }
-
-            AnimLength = Convert.ToInt32(numericUpDown1.Value);
-
-            labelFrameInfo.Text = getShowFrameInfo();
-            hScrollBarFrames.Enabled = frameCount != 0;
-            groupBoxAnimation.Enabled = frameCount != 0;
+             
 
             if(isCursorOverRightArea) 
             {
-                Complex pos = curFrame.pictureToMath(getMousePosition());
-                labelCurFrameInfo.Text = String.Format("({0:0.##};{1:0.##}) scale={2:0.##}", pos.Real, pos.Imaginary, curFrame.scale);
+                Complex pos = workFrame.pictureToMath(getMousePosition());
+                labelCurFrameInfo.Text = String.Format("({0:0.##};{1:0.##}) scale={2:0.##}", pos.Real, pos.Imaginary, workFrame.scale);
                  
             }
 
             if (is_now_tracking) ApplyTracking();
 
-            if (curFrameChanged)
+            if (workFrameChanged)
             {
                 refreshRightPicture();
             }
 
+
             labelThreads.Text = "Threads: " + photoThreadsCounter.ToString();
+            labelFrames.Text = statusFrames;
+            labelStopwatch.Text = statusTimeInfo;
+            checkFormulaChanged();
+        }
+
+        void refreshWindow()
+        {
+            int frameCount = movie.frameCount();
+
+            labelFrameInfo.Text = getShowFrameInfo();
+            hScrollBarFrames.Enabled = frameCount != 0;
+            tabPageAnimation.Enabled = frameCount != 0;
+            removeFrameToolStripMenuItem.Enabled = frameCount != 0;
+            cloneToWorkingAreaToolStripMenuItem.Enabled = frameCount != 0;
+            makeAnimationToolStripMenuItem.Enabled = frameCount != 0;
+            remove1FrameToolStripMenuItem.Enabled = (frameCount > 1);
+            remove10ToolStripMenuItem.Enabled = (frameCount > 10);
+            replaceToolStripMenuItem.Enabled = (frameCount != 0);
+            clearToolStripMenuItem.Enabled = (frameCount != 0);
+
+
+            this.Text = applicationTitle + " - " +
+                ((currentProjectFile==null)? "New project": currentProjectFile)
+                + (currentProjectModified ? "*" : "");
+
+            panel1.BackColor = workFrame.colorMap[(int)numericUpDown10.Value];
+            panelAnnotationColor.BackColor = grid.annotationColor;
+
+            
 
             if (CudaPainter.enabled)
             {
-                if (CudaPainter.canRender(curFrame)  )
+                if (CudaPainter.canRender(workFrame))
                     LabelCuda.Text = "CUDA Enabled";
                 else
                     LabelCuda.Text = "CUDA Enabled but cannot be used";
@@ -437,44 +448,25 @@ namespace Aldyparen
             {
                 LabelCuda.Text = "CUDA Disabled";
             }
-            remove1FrameToolStripMenuItem.Enabled = (frameCount > 1);           
-            remove10ToolStripMenuItem.Enabled = (frameCount > 10);
-
-            if(curFrame.genMode == Frame.GeneratingMode.Formula)
-            {
-                labelActiveFormula.Text = curFrame.param.genFunc.getText();
-            }
-            else
-            {
-                labelActiveFormula.Text = "";
-            }
-
-            labelFrames.Text = statusFrames;
-            labelStopwatch.Text = statusTimeInfo;
-             
-            if (this.currentProjectFile!=null){
-                this.Text = applicationTitle + " - " + currentProjectFile + (currentProjectModified? "*":"");
-            }
-            
-         }
+        }
 
 
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            curFrame = new Frame();
+            workFrame = new Frame();
 
-            curFrame.colorMap = new Color[Frame.MAX_COLORS];
-            for (int i = 0; i < Frame.MAX_COLORS; i++) curFrame.colorMap[i] = Color.White;
+            workFrame.colorMap = new Color[Frame.MAX_COLORS];
+            for (int i = 0; i < Frame.MAX_COLORS; i++) workFrame.colorMap[i] = Color.White;
 
              
-            curFrame.genMode = Frame.GeneratingMode.Formula;
-            curFrame.param = new FrameParams(0, 100);
-            curFrame.param.genFunc = new Function(new String[2] { "c", "z" });
-            curFrame.param.genFunc.setText(textBoxFormula.Text);
-            curFrame.param.genInfty = 2;
-            curFrame.param.genSteps = 20;
-            curFrame.param.genInit = new Complex(0, 0);
+            workFrame.genMode = Frame.GeneratingMode.Formula;
+            workFrame.param = new FrameParams(0, 100);
+            workFrame.param.genFunc = new Function(new String[2] { "c", "z" });
+            workFrame.param.genFunc.setText(textBoxFormula.Text);
+            workFrame.param.genInfty = 2;
+            workFrame.param.genSteps = 20;
+            workFrame.param.genInit = new Complex(0, 0);
 
             setMapColor(0, Color.Black);
             setMapColor(1, Color.White);
@@ -484,272 +476,52 @@ namespace Aldyparen
 
              
             ResetColorCounters(); 
-            setColors(curFrame);
+            setColors(workFrame);
             prepareDialogs();
-            startWork();
-
             
+            
+            if (arguments != null && arguments.Length == 1)
+            {
+                string fileName = arguments[0];
+                arguments = null;
+                if (!openProject(fileName))
+                {
+                    MessageBox.Show("Coluldn't load project");
+                }
+            }
+            else
+            {
+                createNewProject();
+            }
+
+            refreshFormula();
+            refreshLeftPicture();
+
             timer1.Start();
         }
          
 
 
-        private void removeLastFrames(int count)
-        {
-            frameCount -= count;
-            if (frameCount < 0) frameCount = 0;
-            refreshLeftPicture();
-            currentProjectModified = true;
-        } 
-
-        /*
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-           
-
-            if (comboBox1.SelectedIndex == 0)
-            {
-                curFrame = new Frame();
-                curFrame.genMode = Frame.GeneratingMode.Formula;
-                curFrame.param = new FrameParams(0, 20);
-                curFrame.param.genFunc = getFunction();
-                curFrame.param.genInfty = 2;
-                curFrame.param.genSteps = 20;
-                curFrame.param.genInit = new Complex(0, 0);
-
-
-
-
-                setMapColor(0, Color.Black);
-                setMapColor(1, Color.White);
-            }
-            else if (comboBox1.SelectedIndex == 1)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.CubeRootPainter); 
-                curFrame.param = new FrameParams(0,3);
-            }
-            else if (comboBox1.SelectedIndex == 2)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.TetraRootPainter);
-              
-                curFrame.param = new FrameParams(0,40);
-            }
-            else if (comboBox1.SelectedIndex == 3)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.DebugPainter);
-                curFrame.param = new FrameParams(4, 100);
-            }
-            if (comboBox1.SelectedIndex == 4)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.Mandelbrot2Painter);
-                curFrame.param = new FrameParams(0, 256);
-                colors[255] = Color.Black;
-                for (int i = 0; i < 255; i++)
-                {
-                     setMapColor(i, Color.FromArgb(255, i, i, 0));
-                }
-            }
-            else if (comboBox1.SelectedIndex == 5)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.MandelBrotCubePainter);
-                curFrame.param = new FrameParams(0, 256);
-                colors[255] = Color.Black;
-                for (int i = 0; i < 255; i++)
-                {
-                    setMapColor(i, Color.FromArgb(255, i, i, 0));
-                }
-            }
-            else if (comboBox1.SelectedIndex == 6)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.GenericMandelbrotPainter);
-                curFrame.param = new FrameParams(1, 256);
-                
-               setMapColor(curFrame.param.maxUsedColors - 1, Color.Blue);
-
-                setMapColor(0,Color.Black);
-                setMapColor(curFrame.param.maxUsedColors - 2, Color.Yellow);
-                makeGradient(0, curFrame.param.maxUsedColors - 2);
-
-            }
-            else if (comboBox1.SelectedIndex == 7)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.GenericMandelbrotPainter);
-                curFrame.param = new FrameParams(1, 20);
-                setMapColor(curFrame.param.maxUsedColors - 1,Color.Blue);
-
-                setMapColor(0, Color.Black);
-                setMapColor(curFrame.param.maxUsedColors - 2, Color.Yellow);
-                makeGradient(0, curFrame.param.maxUsedColors - 2);
-
-            } 
-            else if (comboBox1.SelectedIndex == 8)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.MandelBrotTetraPainter);
-                curFrame.param = new FrameParams(0, 256);
-                setMapColor(255, Color.Black);
-                for (int i = 0; i < 255; i++)
-                {
-                 setMapColor(i, Color.FromArgb(255, i, i, 0));
-                }
-            }
-            else if (comboBox1.SelectedIndex == 9)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.DzetaPainter);
-                curFrame.param = new FrameParams(0, 50);
-            }
-            else if (comboBox1.SelectedIndex == 10)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.PolynomPainter2);
-                curFrame.param = new FrameParams(6, 50);
-                makeGeoGradient(0, 49);
-            }
-            else if (comboBox1.SelectedIndex == 11)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.PolynomPainter3);
-                curFrame.param = new FrameParams(10, 50);
-                makeGeoGradient(0, 49);
-            }
-
-            else if (comboBox1.SelectedIndex == 12)
-            {
-                curFrame.genMode = Frame.GeneratingMode.Delegate;
-                curFrame.dlgt = new Frame.Get_Pixel(FractalPainters.PolynomPainterAlt);
-                curFrame.param = new FrameParams(10, 50);
-                makeGeoGradient(0, 49);
-            }
-
-            reset_values_list();
-
-
-
-            resetParamsMenu();
-            
-
-            ResetColorCounters();
-            textBox1.Text = comboBox1.Text;
-            setColors(curFrame);
-
-
-            if (frames == null || (checkBox1.Checked == false)) startWork();
-            else
-            {
-                addFrame(curFrame.clone());
-                showLastFrame();
-            }
-
-
-            refreshRightPicture();
-        }
-         * 
-         * */
+         
 
 
         private void setColors(Frame f)
         {
             for (int i = 0; i < f.param.maxUsedColors; i++)
             {
-                f.colorMap[i] = curFrame.colorMap[i];
+                f.colorMap[i] = workFrame.colorMap[i];
             }
 
-            curFrameChanged = true;
+            workFrameChanged = true;
         }
+         
 
-        /*
-        #region "Params menu"
-
-
-        Label[] labelsParams;
-        NumericUpDown[] inputParams;
-        int maxParams = 20;
-
-        void initParamsMenu()
-        {
-            labelsParams = new Label[maxParams];
-            inputParams = new NumericUpDown[maxParams]; 
-            
-            for (int i = 0; i < maxParams; i++)
-            {
-                labelsParams[i] =  new Label();
-                inputParams[i] = new NumericUpDown();
-
-                groupBoxParams.Controls.Add(labelsParams[i]);
-                groupBoxParams.Controls.Add(inputParams[i]);
-
-                 
-
-                labelsParams[i].Location = new Point(5, 20+ 25 * i);
-                labelsParams[i].Text="k" + i.ToString();
-                labelsParams[i].AutoSize = true;
-                
-
-                inputParams[i].Location = new Point(30, 20+25 * i);
-                inputParams[i].Maximum = 1000;
-                inputParams[i].Minimum = -1000;
-                inputParams[i].Increment = (decimal)0.001;
-                inputParams[i].DecimalPlaces = 3;
-                inputParams[i].Width = 70;
-                inputParams[i].Tag = i.ToString();
-                inputParams[i].Value = 1;
-                inputParams[i].ValueChanged += new System.EventHandler(this.inputParams_ValueChanged);
-                inputParams[i].Click += new System.EventHandler(this.inputParams_Click);
-            }
-        }
-
-        void resetParamsMenu()
-        { 
-
-
-            //if (labelsParams == null) return;
-            
-            for (int i = 0; i < maxParams; i++)
-            {
-                labelsParams[i].Hide();
-                inputParams[i].Hide();
-            }
-
-            for (int i = 0; i <  curFrame.param.N; i++)
-            {
-                labelsParams[i].Show();
-                inputParams[i].Show();
-                curFrame.param.k[i] = (double)inputParams[i].Value;
-            }
-
-        }
-
-        private void inputParams_ValueChanged(object sender, EventArgs e)
-        {
-            var sndr = (NumericUpDown)sender;
-            int id = Convert.ToInt32(sndr.Tag);
-            curFrame.param.k[id] = (double)sndr.Value;
-
-            curFrameChanged = true;
-        } 
-
-        private void      inputParams_Click(object sender, EventArgs e)
-        {
-            var sndr = (NumericUpDown)sender;
-            sndr.Select(0,100);
-        }
-
-        #endregion
-        */
 
 
         #region "Color map"
         private void numericUpDown10_ValueChanged(object sender, EventArgs e)
         {
-            panel1.BackColor = curFrame.colorMap[(int)numericUpDown10.Value];
+            panel1.BackColor = workFrame.colorMap[(int)numericUpDown10.Value];
         } 
         
         private void panel1_Click(object sender, EventArgs e)
@@ -762,16 +534,16 @@ namespace Aldyparen
 
            // frames[frameCount - 1].colorMap[(int)numericUpDown10.Value] = cd.Color;
            // pictureBox1.Image = frames[frameCount - 1].getFrame(halfWidth, halfHeight);
-            curFrameChanged = true;
+            workFrameChanged = true;
         }
 
         private void setMapColor(int index, Color color)
         {
-            curFrame.colorMap[index] = color;
-            if (index < curFrame.param.maxUsedColors)
+            workFrame.colorMap[index] = color;
+            if (index < workFrame.param.maxUsedColors)
             {
-                curFrame.colorMap[index] = color;
-                curFrameChanged = true;
+                workFrame.colorMap[index] = color;
+                workFrameChanged = true;
             }
 
             if ((int)numericUpDown10.Value == index)
@@ -785,12 +557,12 @@ namespace Aldyparen
         private void button4_Click(object sender, EventArgs e)
         {
             Random r = new Random();
-            for (int i = 0; i < curFrame.param.maxUsedColors; i++)
+            for (int i = 0; i < workFrame.param.maxUsedColors; i++)
             {
                 setMapColor(i,   Color.FromArgb(255, r.Next(255), r.Next(255), r.Next(255)));
-                setColors(lastFrame());
+                setColors(movie[-1]);
             }
-            curFrameChanged = true;
+            workFrameChanged = true;
  
         }
 
@@ -832,13 +604,13 @@ namespace Aldyparen
         void makeGradient(int c1, int c2)
         {
 
-            int R1 = curFrame.colorMap[c1].R;
-            int G1 = curFrame.colorMap[c1].G;
-            int B1 = curFrame.colorMap[c1].B;
+            int R1 = workFrame.colorMap[c1].R;
+            int G1 = workFrame.colorMap[c1].G;
+            int B1 = workFrame.colorMap[c1].B;
 
-            int R2 = curFrame.colorMap[c2].R;
-            int G2 = curFrame.colorMap[c2].G;
-            int B2 = curFrame.colorMap[c2].B;
+            int R2 = workFrame.colorMap[c2].R;
+            int G2 = workFrame.colorMap[c2].G;
+            int B2 = workFrame.colorMap[c2].B;
 
 
             for (int i = 0; i <= c2-c1; i++)
@@ -850,12 +622,12 @@ namespace Aldyparen
         void ResetColorCounters()
         {
 
-            numericUpDown10.Maximum = curFrame.param.maxUsedColors- 1;
-            numericUpDown11.Maximum = curFrame.param.maxUsedColors - 1;
-            numericUpDown12.Maximum = curFrame.param.maxUsedColors - 1;
+            numericUpDown10.Maximum = workFrame.param.maxUsedColors- 1;
+            numericUpDown11.Maximum = workFrame.param.maxUsedColors - 1;
+            numericUpDown12.Maximum = workFrame.param.maxUsedColors - 1;
 
             numericUpDown11.Value=0;
-            numericUpDown12.Value = curFrame.param.maxUsedColors - 1;
+            numericUpDown12.Value = workFrame.param.maxUsedColors - 1;
 
 
         }
@@ -897,7 +669,7 @@ namespace Aldyparen
             photoThreadsCounter++;
             
             photoParameters param = (photoParameters)_param;
-            Bitmap bmp = param._frame.getFrame(param._W, param._H,gridRight);
+            Bitmap bmp = param._frame.getFrame(param._W, param._H,grid);
 
             if (bmp == null) return;
 
@@ -962,7 +734,7 @@ namespace Aldyparen
                 }
             }
 
-            Frame fr = curFrame.clone();
+            Frame fr = workFrame.clone();
              
 
             pictureBox2.Image.Save(path);
@@ -1008,9 +780,9 @@ namespace Aldyparen
             {
                 return;
             }
-            curFrame.scale = _scl;
-            curFrame.ctr = new Complex(_ctr1, _ctr2);
-            curFrameChanged = true;
+            workFrame.scale = _scl;
+            workFrame.ctr = new Complex(_ctr1, _ctr2);
+            workFrameChanged = true;
         }
 
         private void button11_Click(object sender, EventArgs e)
@@ -1027,30 +799,15 @@ namespace Aldyparen
         {
             var f = new FormCudaSettings();
             f.ShowDialog();
-        }
-
-        private void button12_Click(object sender, EventArgs e)
-        {
-            Function f = new Function();
-            f.addVariable("x");
-
-            Dictionary<String, Complex> vars = new Dictionary<string, Complex>();
-            vars["x"] = new Complex(14, 88);
-
-            f.setText(textBoxFormula.Text);
-
-            if (f.isCorrect())
-            {
-                labelActiveFormula.Text = f.eval(vars).ToString();
-            }
-            else
-            {
-                labelActiveFormula.Text = f.errorMessage;
-            }
+            refreshWindow();
         }
 
 
-        public void paintText(RichTextBox tb, Color clr, int start, int end)
+        #region "Formula"
+
+        private bool formulaChanged = false;
+
+        private void paintText(RichTextBox tb, Color clr, int start, int end)
         { 
             int cp = tb.SelectionStart;
             tb.Select(start, end - start + 1);
@@ -1059,7 +816,8 @@ namespace Aldyparen
             tb.SelectionStart = cp;
         }
 
-        public void paintText(RichTextBox tb, Color clr)
+
+        private void paintText(RichTextBox tb, Color clr)
         {
             int cp = tb.SelectionStart;
             tb.SelectAll();
@@ -1079,8 +837,8 @@ namespace Aldyparen
             {
                 int cp = textBoxFormula.SelectionStart;
                 labelFormulaError.Text = "";
-                curFrame.param.genFunc = f;
-                curFrameChanged = true;
+                workFrame.param.genFunc = f;
+                workFrameChanged = true;
                 textBoxFormula.Text = f.getText();
                 textBoxFormula.SelectionStart = cp;
             }
@@ -1093,31 +851,205 @@ namespace Aldyparen
 
         private void textBoxFormula_TextChanged(object sender, EventArgs e)
         {
+            formulaChanged = true;
+        }
+
+        private void checkFormulaChanged()
+        {
+            if (!formulaChanged) return;
+
             paintText(textBoxFormula, Color.Black);
-            if (realTimeApplying) refreshFormula();  
-            
+            refreshFormula();
+
             Function f = new Function();
             f.setText(textBoxFormula.Text);
             try
             {
-                this.Text =  f.eval().ToString();
+                this.Text = f.eval().ToString();
             }
             catch (Exception ex)
             {
                 //
             }
+            formulaChanged = false;
         }
 
-        private void button12_Click_1(object sender, EventArgs e)
+        #endregion
+
+
+
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            refreshFormula();
+            resetTransform();
         }
 
+  
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Aldyparen " + Application.ProductVersion + "\n" + "© Dmitriy Fedoriaka, 2015-2017");
+        }
+
+        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("You can get manual on the page of the project: http://fedimser.github.io/aldyparen.html");
+        }
+
+       
+
+        private void panelAnnotationColor_Click(object sender, EventArgs e)
+        {
+            var cd = new ColorDialog();
+            cd.Color = grid.annotationColor;
+            if (cd.ShowDialog() == DialogResult.OK)
+            {
+                grid.annotationColor = cd.Color;
+                panelAnnotationColor.BackColor = cd.Color;
+                if (grid.annotate)
+                {
+                    refreshRightPicture();
+                }
+            }
+        }
+
+
+        #region "Projects"
+        SaveFileDialog sfdProject = new SaveFileDialog();
+        OpenFileDialog ofdProject = new OpenFileDialog();
+        String currentProjectFile = null;
+        private bool currentProjectModified = false;
+
+         
+
+        private bool askForSavingCurrent()
+        {
+            if (movie.frameCount() != 0 && currentProjectModified)
+            {
+                var res = MessageBox.Show("Do you want to save changes to current project?",
+                    "", MessageBoxButtons.YesNoCancel);
+                if (res == System.Windows.Forms.DialogResult.Cancel) return false;
+                if (res == System.Windows.Forms.DialogResult.Yes)
+                {
+                    if (!saveProject()) return false;
+                }
+                return true;
+            }
+            else return true;
+        }
+
+        void prepareDialogs()
+        {
+            sfdProject.Filter = "Aldyparen Projects|*.adp";
+            sfdProject.InitialDirectory = Application.StartupPath;
+
+            ofdProject.Filter = "Aldyparen Projects|*.adp";
+            ofdProject.InitialDirectory = Application.StartupPath;
+
+            sfdPhoto.InitialDirectory = Application.StartupPath;
+            
+            
+            if (!Directory.Exists("Output\\Video"))
+            {
+                Directory.CreateDirectory("Output\\Video");
+            }
+            sfdVideo.InitialDirectory = Application.StartupPath + "\\Output\\Video";
+            sfdVideo.Filter = "AVI video|*.avi";
+        }
+
+        private bool saveProject()
+        {
+            if (currentProjectFile == null)
+            {
+                return saveProjectAs();
+            }
+            else
+            {
+                movie.save(currentProjectFile);
+                currentProjectModified = false;
+                refreshWindow();
+                return true;
+            }
+        }
+
+        private bool saveProjectAs()
+        {
+            if (movie.frameCount() == 0)
+            {
+                MessageBox.Show("Project is empty");
+                return false;
+            }
+
+            if(sfdProject.ShowDialog()==DialogResult.OK)
+            {
+                movie.save(sfdProject.FileName);
+                currentProjectFile = sfdProject.FileName;
+                currentProjectModified = false;
+                refreshWindow();
+                return true;
+            }
+            return false;
+        }
+
+        private bool openProject(string fileName)
+        {
+            timer1.Stop();
+            bool OK = false;
+            try
+            {
+                //labelCurFrameInfo.Text = "Loading project...";
+                movie = Movie.load(fileName);
+                currentProjectFile = fileName;
+                showFrame = movie.frameCount() - 1;
+                refreshLeftPicture();
+                workFrame = movie[-1].clone();
+                refreshFormula();
+                refreshRightPicture();
+                if (workFrame.genMode == Frame.GeneratingMode.Formula)
+                {
+                    textBoxFormula.Text = workFrame.param.genFunc.getText();
+                }
+                currentProjectModified = false;
+                OK = true;
+            }
+            catch (Exception ex)
+            {
+                //
+            }
+            finally
+            { 
+                timer1.Start();
+            }
+            refreshWindow();
+            return OK;
+        }
+
+        private bool openProject()
+        {
+            if (!askForSavingCurrent()) return false;
+            if (ofdProject.ShowDialog() == DialogResult.OK)
+            {
+                if (openProject(ofdProject.FileName))
+                {
+                    return true;
+                }
+                else 
+                {
+                    MessageBox.Show("Couldn't open file " + ofdProject.FileName);
+                    return false;
+                }
+            }
+            return false;
+        }
+        #endregion
+
+#region "Menu"
+         
         private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             var f = new FormSettings();
             f.formMain = this;
             f.ShowDialog();
+            refreshWindow();
         }
 
         private void classicMandelbrotSetToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1144,28 +1076,28 @@ namespace Aldyparen
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            startWork();
+            movie.removeFrames(0, movie.frameCount());
         }
 
         private void appendToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            addFrame(curFrame.clone());
+            addFrame(workFrame.clone());
         }
 
         private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frameCount--;
-            addFrame(curFrame.clone());
+            removeFrames(movie.frameCount() - 1, movie.frameCount());
+            addFrame(workFrame.clone());
         }
 
         private void remove1FrameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            removeLastFrames(1);
+            removeFrames(movie.frameCount() - 1, movie.frameCount());
         }
 
         private void remove10ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            removeLastFrames(10);
+            removeFrames(movie.frameCount() - 10, movie.frameCount());
         }
 
         private void makeAnimationToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1178,163 +1110,7 @@ namespace Aldyparen
             setArea();
         }
 
-        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            resetTransform();
-        }
 
-  
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Aldyparen " + Application.ProductVersion + "\n" + "© Dmitriy Fedoriaka, 2015-2016");
-        }
-
-        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("You can get manual on the page of the project: http://fedimser.github.io/aldyparen.html");
-        }
-
-       
-
-        private void panelAnnotationColor_Click(object sender, EventArgs e)
-        {
-            var cd = new ColorDialog();
-            cd.Color = gridRight.annotationColor;
-            if (cd.ShowDialog() == DialogResult.OK)
-            {
-                gridRight.annotationColor = cd.Color;
-                panelAnnotationColor.BackColor = cd.Color;
-                if (gridRight.annotate)
-                {
-                    refreshRightPicture();
-                }
-            }
-        }
-
-
-        #region "Projects"
-        SaveFileDialog sfdProject = new SaveFileDialog();
-        OpenFileDialog ofdProject = new OpenFileDialog();
-        String currentProjectFile = null;
-        private bool currentProjectModified = false;
-
-
-        private bool createNewProject()
-        {
-            if (!askForSavingCurrent()) return false;
-            startWork();
-            return true;
-        }
-
-        private bool askForSavingCurrent()
-        {
-            if (frameCount != 0 && currentProjectModified)
-            {
-                var res = MessageBox.Show("Do you want to save changes to current project?",
-                    "", MessageBoxButtons.YesNoCancel);
-                if (res == System.Windows.Forms.DialogResult.Cancel) return false;
-                if (res == System.Windows.Forms.DialogResult.Yes)
-                {
-                    if (!saveProject()) return false;
-                }
-                return true;
-            }
-            else return true;
-        }
-
-        void prepareDialogs()
-        {
-            sfdProject.Filter = "Aldyparen Projects|*.adp";
-            sfdProject.InitialDirectory = Application.StartupPath;
-
-            ofdProject.Filter = "Aldyparen Projects|*.adp";
-            ofdProject.InitialDirectory = Application.StartupPath;
-
-            sfdPhoto.InitialDirectory = Application.StartupPath;
-        }
-
-        private bool saveProject()
-        {
-            if (currentProjectFile == null)
-            {
-                return saveProjectAs();
-            }
-            else
-            {
-                Movie movie = new Movie(frames, frameCount);
-                movie.save(currentProjectFile);
-                currentProjectModified = false;
-                return true;
-            }
-        }
-
-        private bool saveProjectAs()
-        {
-            if (frameCount == 0)
-            {
-                MessageBox.Show("Project is empty");
-                return false;
-            }
-
-            if(sfdProject.ShowDialog()==DialogResult.OK)
-            {
-                Movie movie = new Movie(frames, frameCount);
-                movie.save(sfdProject.FileName);
-                currentProjectFile = sfdProject.FileName;
-                currentProjectModified = false;
-                return true;
-            }
-            return false;
-        }
-
-        private bool openProject(string fileName)
-        {
-            timer1.Stop();
-            bool OK = false;
-            try
-            {
-                //labelCurFrameInfo.Text = "Loading project...";
-                Movie movie = Movie.load(fileName);
-                currentProjectFile = fileName;
-                frameCount = movie.frames.Length;
-                for (int i = 0; i < frameCount; ++i)
-                {
-                    frames[i] = movie.frames[i];
-                }
-                showFrame = frameCount - 1;
-                refreshLeftPicture();
-                curFrame = lastFrame().clone();
-                refreshRightPicture();
-                if (curFrame.genMode == Frame.GeneratingMode.Formula)
-                {
-                    textBoxFormula.Text = curFrame.param.genFunc.getText();
-                }
-                currentProjectModified = false;
-                OK = true;
-            }
-            catch (Exception ex)
-            {
-                //
-            }
-            finally
-            { 
-                timer1.Start();
-            }
-            return OK;
-        }
-
-        private bool openProject()
-        {
-            if (!askForSavingCurrent()) return false;
-            if (ofdProject.ShowDialog() == DialogResult.OK)
-            {
-                return openProject(ofdProject.FileName);
-            }
-            return false;
-        }
-        #endregion
-
-#region "Menu"
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
             makePhotoClick();
@@ -1386,15 +1162,29 @@ namespace Aldyparen
         {
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
             item.Checked = !item.Checked;
-            gridRight.useGrid = gridToolStripMenuItem.Checked;
-            gridRight.useTicks = ticksToolStripMenuItem.Checked;
-            gridRight.useAxes = axesToolStripMenuItem.Checked;
-            gridRight.annotate = annotationToolStripMenuItem.Checked;
+            grid.useGrid = gridToolStripMenuItem.Checked;
+            grid.useTicks = ticksToolStripMenuItem.Checked;
+            grid.useAxes = axesToolStripMenuItem.Checked;
+            grid.annotate = annotationToolStripMenuItem.Checked;
             refreshRightPicture();
         }
-         
+
+
+        private void removeFrameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            removeFrames(showFrame, showFrame + 1);
+        }
+
+
+        private void cloneToWorkingAreaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            workFrame = movie[showFrame];
+            refreshRightPicture();
+        }
+
 
 #endregion
+         
  
         
     

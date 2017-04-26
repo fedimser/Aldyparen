@@ -49,7 +49,7 @@
             this.checkBox1.Size = new System.Drawing.Size(114, 24);
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "Use CUDA";
-            this.checkBox1.UseVisualStyleBackColor = true; 
+            this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.Click += new System.EventHandler(this.checkBox1_Click);
             // 
             // button1
@@ -91,7 +91,7 @@
             this.checkBox2.Size = new System.Drawing.Size(308, 24);
             this.checkBox2.TabIndex = 6;
             this.checkBox2.Text = "Row scan (for extremely large pictures)";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.UseVisualStyleBackColor = true; 
             // 
             // label2
             // 

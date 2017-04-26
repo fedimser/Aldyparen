@@ -38,8 +38,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.numericUpDownDiv = new System.Windows.Forms.NumericUpDown();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.groupBoxAnimation = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panelAnnotationColor = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.checkBoxGeo = new System.Windows.Forms.CheckBox();
@@ -57,9 +55,6 @@
             this.labelStopwatch = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.LabelCuda = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.labelCurFrameInfo = new System.Windows.Forms.ToolStripStatusLabel();
-            this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.файлToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.создатьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -88,6 +83,8 @@
             this.remove1FrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.remove10ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeAnimationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cloneToWorkingAreaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.transformToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -97,44 +94,48 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.labelActiveFormula = new System.Windows.Forms.Label();
             this.labelFormulaError = new System.Windows.Forms.Label();
             this.textBoxFormula = new System.Windows.Forms.RichTextBox();
-            this.button12 = new System.Windows.Forms.Button();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.hScrollBarFrames = new System.Windows.Forms.HScrollBar();
             this.labelFrameInfo = new System.Windows.Forms.Label();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPageGenerator = new System.Windows.Forms.TabPage();
+            this.tabPageColorMap = new System.Windows.Forms.TabPage();
+            this.labelCurFrameInfo = new System.Windows.Forms.Label();
+            this.tabControl2 = new System.Windows.Forms.TabControl();
+            this.tabPageFrameInfo = new System.Windows.Forms.TabPage();
+            this.tabPageAnimation = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDiv)).BeginInit();
-            this.groupBoxAnimation.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown12)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown11)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.groupBox5.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabPageGenerator.SuspendLayout();
+            this.tabPageColorMap.SuspendLayout();
+            this.tabControl2.SuspendLayout();
+            this.tabPageFrameInfo.SuspendLayout();
+            this.tabPageAnimation.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox1
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(9, 77);
+            this.pictureBox1.Location = new System.Drawing.Point(12, 38);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(640, 360);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.pictureBox2_MouseWheel);
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(227, 20);
+            this.button2.Location = new System.Drawing.Point(221, 10);
             this.button2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(94, 57);
@@ -146,7 +147,7 @@
             // pictureBox2
             // 
             this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox2.Location = new System.Drawing.Point(653, 77);
+            this.pictureBox2.Location = new System.Drawing.Point(657, 38);
             this.pictureBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(636, 360);
@@ -162,7 +163,7 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(152, 21);
+            this.numericUpDown1.Location = new System.Drawing.Point(146, 11);
             this.numericUpDown1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(52, 26);
@@ -176,7 +177,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 27);
+            this.label3.Location = new System.Drawing.Point(4, 17);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(134, 20);
@@ -186,7 +187,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(10, 57);
+            this.label6.Location = new System.Drawing.Point(4, 47);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(119, 20);
@@ -195,7 +196,7 @@
             // 
             // numericUpDownDiv
             // 
-            this.numericUpDownDiv.Location = new System.Drawing.Point(152, 51);
+            this.numericUpDownDiv.Location = new System.Drawing.Point(146, 41);
             this.numericUpDownDiv.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDownDiv.Name = "numericUpDownDiv";
             this.numericUpDownDiv.Size = new System.Drawing.Size(52, 26);
@@ -206,46 +207,10 @@
             this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // groupBoxAnimation
-            // 
-            this.groupBoxAnimation.Controls.Add(this.label3);
-            this.groupBoxAnimation.Controls.Add(this.numericUpDown1);
-            this.groupBoxAnimation.Controls.Add(this.button2);
-            this.groupBoxAnimation.Controls.Add(this.label6);
-            this.groupBoxAnimation.Controls.Add(this.numericUpDownDiv);
-            this.groupBoxAnimation.Location = new System.Drawing.Point(309, 487);
-            this.groupBoxAnimation.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxAnimation.Name = "groupBoxAnimation";
-            this.groupBoxAnimation.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxAnimation.Size = new System.Drawing.Size(336, 85);
-            this.groupBoxAnimation.TabIndex = 29;
-            this.groupBoxAnimation.TabStop = false;
-            this.groupBoxAnimation.Text = "Animation settings";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.panelAnnotationColor);
-            this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Controls.Add(this.checkBoxGeo);
-            this.groupBox1.Controls.Add(this.numericUpDown12);
-            this.groupBox1.Controls.Add(this.numericUpDown11);
-            this.groupBox1.Controls.Add(this.button7);
-            this.groupBox1.Controls.Add(this.panel1);
-            this.groupBox1.Controls.Add(this.numericUpDown10);
-            this.groupBox1.Controls.Add(this.button4);
-            this.groupBox1.Location = new System.Drawing.Point(653, 442);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox1.Size = new System.Drawing.Size(309, 130);
-            this.groupBox1.TabIndex = 34;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Color map";
-            // 
             // panelAnnotationColor
             // 
             this.panelAnnotationColor.BackColor = System.Drawing.Color.Black;
-            this.panelAnnotationColor.Location = new System.Drawing.Point(139, 91);
+            this.panelAnnotationColor.Location = new System.Drawing.Point(160, 102);
             this.panelAnnotationColor.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panelAnnotationColor.Name = "panelAnnotationColor";
             this.panelAnnotationColor.Size = new System.Drawing.Size(63, 31);
@@ -255,7 +220,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 98);
+            this.label4.Location = new System.Drawing.Point(28, 109);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(125, 20);
             this.label4.TabIndex = 78;
@@ -264,7 +229,7 @@
             // checkBoxGeo
             // 
             this.checkBoxGeo.AutoSize = true;
-            this.checkBoxGeo.Location = new System.Drawing.Point(128, 62);
+            this.checkBoxGeo.Location = new System.Drawing.Point(149, 73);
             this.checkBoxGeo.Name = "checkBoxGeo";
             this.checkBoxGeo.Size = new System.Drawing.Size(66, 24);
             this.checkBoxGeo.TabIndex = 7;
@@ -273,7 +238,7 @@
             // 
             // numericUpDown12
             // 
-            this.numericUpDown12.Location = new System.Drawing.Point(69, 60);
+            this.numericUpDown12.Location = new System.Drawing.Point(90, 71);
             this.numericUpDown12.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDown12.Maximum = new decimal(new int[] {
             1000,
@@ -291,7 +256,7 @@
             // 
             // numericUpDown11
             // 
-            this.numericUpDown11.Location = new System.Drawing.Point(8, 60);
+            this.numericUpDown11.Location = new System.Drawing.Point(29, 71);
             this.numericUpDown11.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDown11.Maximum = new decimal(new int[] {
             1000,
@@ -304,7 +269,7 @@
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(196, 58);
+            this.button7.Location = new System.Drawing.Point(217, 69);
             this.button7.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(97, 35);
@@ -315,7 +280,7 @@
             // 
             // panel1
             // 
-            this.panel1.Location = new System.Drawing.Point(94, 22);
+            this.panel1.Location = new System.Drawing.Point(115, 33);
             this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(63, 31);
@@ -324,7 +289,7 @@
             // 
             // numericUpDown10
             // 
-            this.numericUpDown10.Location = new System.Drawing.Point(8, 24);
+            this.numericUpDown10.Location = new System.Drawing.Point(29, 35);
             this.numericUpDown10.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDown10.Maximum = new decimal(new int[] {
             999,
@@ -338,7 +303,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(196, 18);
+            this.button4.Location = new System.Drawing.Point(217, 29);
             this.button4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(97, 35);
@@ -356,9 +321,7 @@
             this.toolStripStatusLabel4,
             this.labelStopwatch,
             this.toolStripStatusLabel1,
-            this.LabelCuda,
-            this.toolStripStatusLabel3,
-            this.labelCurFrameInfo});
+            this.LabelCuda});
             this.statusStrip1.Location = new System.Drawing.Point(0, 721);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
@@ -408,27 +371,6 @@
             this.LabelCuda.Name = "LabelCuda";
             this.LabelCuda.Size = new System.Drawing.Size(195, 25);
             this.LabelCuda.Text = "toolStripStatusLabel1";
-            // 
-            // toolStripStatusLabel3
-            // 
-            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(16, 25);
-            this.toolStripStatusLabel3.Text = "|";
-            // 
-            // labelCurFrameInfo
-            // 
-            this.labelCurFrameInfo.Name = "labelCurFrameInfo";
-            this.labelCurFrameInfo.Size = new System.Drawing.Size(67, 25);
-            this.labelCurFrameInfo.Text = "<info>";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(649, 36);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(107, 20);
-            this.label2.TabIndex = 67;
-            this.label2.Text = "Current frame";
             // 
             // menuStrip1
             // 
@@ -618,7 +560,9 @@
             this.replaceToolStripMenuItem,
             this.remove1FrameToolStripMenuItem,
             this.remove10ToolStripMenuItem,
-            this.makeAnimationToolStripMenuItem});
+            this.makeAnimationToolStripMenuItem,
+            this.removeFrameToolStripMenuItem,
+            this.cloneToWorkingAreaToolStripMenuItem});
             this.videoEditToolStripMenuItem.Name = "videoEditToolStripMenuItem";
             this.videoEditToolStripMenuItem.Size = new System.Drawing.Size(105, 29);
             this.videoEditToolStripMenuItem.Text = "Video edit";
@@ -626,7 +570,7 @@
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(322, 30);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
             // 
@@ -634,30 +578,30 @@
             // 
             this.appendToolStripMenuItem.Name = "appendToolStripMenuItem";
             this.appendToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-                        | System.Windows.Forms.Keys.V)));
-            this.appendToolStripMenuItem.Size = new System.Drawing.Size(322, 30);
+                        | System.Windows.Forms.Keys.Left)));
+            this.appendToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
             this.appendToolStripMenuItem.Text = "Append";
             this.appendToolStripMenuItem.Click += new System.EventHandler(this.appendToolStripMenuItem_Click);
             // 
             // replaceToolStripMenuItem
             // 
             this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
-            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(322, 30);
+            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
             this.replaceToolStripMenuItem.Text = "Replace";
             this.replaceToolStripMenuItem.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
             // 
             // remove1FrameToolStripMenuItem
             // 
             this.remove1FrameToolStripMenuItem.Name = "remove1FrameToolStripMenuItem";
-            this.remove1FrameToolStripMenuItem.Size = new System.Drawing.Size(322, 30);
-            this.remove1FrameToolStripMenuItem.Text = "Remove";
+            this.remove1FrameToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
+            this.remove1FrameToolStripMenuItem.Text = "Remove last frame";
             this.remove1FrameToolStripMenuItem.Click += new System.EventHandler(this.remove1FrameToolStripMenuItem_Click);
             // 
             // remove10ToolStripMenuItem
             // 
             this.remove10ToolStripMenuItem.Name = "remove10ToolStripMenuItem";
-            this.remove10ToolStripMenuItem.Size = new System.Drawing.Size(322, 30);
-            this.remove10ToolStripMenuItem.Text = "Remove 10";
+            this.remove10ToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
+            this.remove10ToolStripMenuItem.Text = "Remove last 10 frames";
             this.remove10ToolStripMenuItem.Click += new System.EventHandler(this.remove10ToolStripMenuItem_Click);
             // 
             // makeAnimationToolStripMenuItem
@@ -665,9 +609,26 @@
             this.makeAnimationToolStripMenuItem.Name = "makeAnimationToolStripMenuItem";
             this.makeAnimationToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
                         | System.Windows.Forms.Keys.A)));
-            this.makeAnimationToolStripMenuItem.Size = new System.Drawing.Size(322, 30);
+            this.makeAnimationToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
             this.makeAnimationToolStripMenuItem.Text = "Make animation";
             this.makeAnimationToolStripMenuItem.Click += new System.EventHandler(this.makeAnimationToolStripMenuItem_Click);
+            // 
+            // removeFrameToolStripMenuItem
+            // 
+            this.removeFrameToolStripMenuItem.Name = "removeFrameToolStripMenuItem";
+            this.removeFrameToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
+            this.removeFrameToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
+            this.removeFrameToolStripMenuItem.Text = "Remove selected frame";
+            this.removeFrameToolStripMenuItem.Click += new System.EventHandler(this.removeFrameToolStripMenuItem_Click);
+            // 
+            // cloneToWorkingAreaToolStripMenuItem
+            // 
+            this.cloneToWorkingAreaToolStripMenuItem.Name = "cloneToWorkingAreaToolStripMenuItem";
+            this.cloneToWorkingAreaToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
+                        | System.Windows.Forms.Keys.Right)));
+            this.cloneToWorkingAreaToolStripMenuItem.Size = new System.Drawing.Size(448, 30);
+            this.cloneToWorkingAreaToolStripMenuItem.Text = "Selected frame -> work area";
+            this.cloneToWorkingAreaToolStripMenuItem.Click += new System.EventHandler(this.cloneToWorkingAreaToolStripMenuItem_Click);
             // 
             // transformToolStripMenuItem
             // 
@@ -739,99 +700,140 @@
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // labelActiveFormula
-            // 
-            this.labelActiveFormula.AutoSize = true;
-            this.labelActiveFormula.Location = new System.Drawing.Point(6, 22);
-            this.labelActiveFormula.Name = "labelActiveFormula";
-            this.labelActiveFormula.Size = new System.Drawing.Size(143, 20);
-            this.labelActiveFormula.TabIndex = 71;
-            this.labelActiveFormula.Text = "labelActiveFormula";
-            // 
             // labelFormulaError
             // 
             this.labelFormulaError.AutoSize = true;
             this.labelFormulaError.ForeColor = System.Drawing.Color.Red;
-            this.labelFormulaError.Location = new System.Drawing.Point(6, 69);
+            this.labelFormulaError.Location = new System.Drawing.Point(6, 78);
             this.labelFormulaError.Name = "labelFormulaError";
-            this.labelFormulaError.Size = new System.Drawing.Size(13, 20);
+            this.labelFormulaError.Size = new System.Drawing.Size(109, 20);
             this.labelFormulaError.TabIndex = 72;
-            this.labelFormulaError.Text = ".";
+            this.labelFormulaError.Text = "ErrorMessage";
             // 
             // textBoxFormula
             // 
-            this.textBoxFormula.Location = new System.Drawing.Point(10, 45);
-            this.textBoxFormula.Multiline = false;
+            this.textBoxFormula.Location = new System.Drawing.Point(6, 6);
             this.textBoxFormula.Name = "textBoxFormula";
-            this.textBoxFormula.Size = new System.Drawing.Size(1138, 25);
+            this.textBoxFormula.Size = new System.Drawing.Size(616, 66);
             this.textBoxFormula.TabIndex = 73;
             this.textBoxFormula.Text = "z^2+c";
             this.textBoxFormula.TextChanged += new System.EventHandler(this.textBoxFormula_TextChanged);
             // 
-            // button12
-            // 
-            this.button12.Location = new System.Drawing.Point(1154, 45);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(77, 26);
-            this.button12.TabIndex = 74;
-            this.button12.Text = "Apply";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click_1);
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.labelActiveFormula);
-            this.groupBox2.Controls.Add(this.textBoxFormula);
-            this.groupBox2.Controls.Add(this.button12);
-            this.groupBox2.Controls.Add(this.labelFormulaError);
-            this.groupBox2.Location = new System.Drawing.Point(12, 607);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1281, 90);
-            this.groupBox2.TabIndex = 75;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Generator";
-            // 
             // hScrollBarFrames
             // 
             this.hScrollBarFrames.LargeChange = 1;
-            this.hScrollBarFrames.Location = new System.Drawing.Point(9, 442);
+            this.hScrollBarFrames.Location = new System.Drawing.Point(13, 398);
             this.hScrollBarFrames.Name = "hScrollBarFrames";
-            this.hScrollBarFrames.Size = new System.Drawing.Size(640, 26);
+            this.hScrollBarFrames.Size = new System.Drawing.Size(639, 26);
             this.hScrollBarFrames.TabIndex = 78;
             this.hScrollBarFrames.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
             // 
             // labelFrameInfo
             // 
             this.labelFrameInfo.AutoSize = true;
-            this.labelFrameInfo.Location = new System.Drawing.Point(6, 22);
+            this.labelFrameInfo.Location = new System.Drawing.Point(6, 3);
             this.labelFrameInfo.Name = "labelFrameInfo";
             this.labelFrameInfo.Size = new System.Drawing.Size(147, 20);
             this.labelFrameInfo.TabIndex = 79;
             this.labelFrameInfo.Text = "No frames available";
             // 
-            // groupBox5
+            // tabControl1
             // 
-            this.groupBox5.Controls.Add(this.labelFrameInfo);
-            this.groupBox5.Location = new System.Drawing.Point(9, 477);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(293, 124);
-            this.groupBox5.TabIndex = 80;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Frame Info";
+            this.tabControl1.Controls.Add(this.tabPageGenerator);
+            this.tabControl1.Controls.Add(this.tabPageColorMap);
+            this.tabControl1.Location = new System.Drawing.Point(657, 425);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(636, 200);
+            this.tabControl1.TabIndex = 81;
+            // 
+            // tabPageGenerator
+            // 
+            this.tabPageGenerator.Controls.Add(this.textBoxFormula);
+            this.tabPageGenerator.Controls.Add(this.labelFormulaError);
+            this.tabPageGenerator.Location = new System.Drawing.Point(4, 29);
+            this.tabPageGenerator.Name = "tabPageGenerator";
+            this.tabPageGenerator.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageGenerator.Size = new System.Drawing.Size(628, 167);
+            this.tabPageGenerator.TabIndex = 0;
+            this.tabPageGenerator.Text = "Generator";
+            this.tabPageGenerator.UseVisualStyleBackColor = true;
+            // 
+            // tabPageColorMap
+            // 
+            this.tabPageColorMap.Controls.Add(this.panelAnnotationColor);
+            this.tabPageColorMap.Controls.Add(this.numericUpDown10);
+            this.tabPageColorMap.Controls.Add(this.label4);
+            this.tabPageColorMap.Controls.Add(this.button4);
+            this.tabPageColorMap.Controls.Add(this.checkBoxGeo);
+            this.tabPageColorMap.Controls.Add(this.panel1);
+            this.tabPageColorMap.Controls.Add(this.numericUpDown12);
+            this.tabPageColorMap.Controls.Add(this.button7);
+            this.tabPageColorMap.Controls.Add(this.numericUpDown11);
+            this.tabPageColorMap.Location = new System.Drawing.Point(4, 29);
+            this.tabPageColorMap.Name = "tabPageColorMap";
+            this.tabPageColorMap.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageColorMap.Size = new System.Drawing.Size(628, 167);
+            this.tabPageColorMap.TabIndex = 1;
+            this.tabPageColorMap.Text = "Color map";
+            this.tabPageColorMap.UseVisualStyleBackColor = true;
+            // 
+            // labelCurFrameInfo
+            // 
+            this.labelCurFrameInfo.AutoSize = true;
+            this.labelCurFrameInfo.Location = new System.Drawing.Point(657, 403);
+            this.labelCurFrameInfo.Name = "labelCurFrameInfo";
+            this.labelCurFrameInfo.Size = new System.Drawing.Size(65, 20);
+            this.labelCurFrameInfo.TabIndex = 82;
+            this.labelCurFrameInfo.Text = "<INFO>";
+            // 
+            // tabControl2
+            // 
+            this.tabControl2.Controls.Add(this.tabPageFrameInfo);
+            this.tabControl2.Controls.Add(this.tabPageAnimation);
+            this.tabControl2.Location = new System.Drawing.Point(13, 427);
+            this.tabControl2.Name = "tabControl2";
+            this.tabControl2.SelectedIndex = 0;
+            this.tabControl2.Size = new System.Drawing.Size(638, 198);
+            this.tabControl2.TabIndex = 83;
+            // 
+            // tabPageFrameInfo
+            // 
+            this.tabPageFrameInfo.Controls.Add(this.labelFrameInfo);
+            this.tabPageFrameInfo.Location = new System.Drawing.Point(4, 29);
+            this.tabPageFrameInfo.Name = "tabPageFrameInfo";
+            this.tabPageFrameInfo.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageFrameInfo.Size = new System.Drawing.Size(630, 165);
+            this.tabPageFrameInfo.TabIndex = 0;
+            this.tabPageFrameInfo.Text = "Frame info";
+            this.tabPageFrameInfo.UseVisualStyleBackColor = true;
+            // 
+            // tabPageAnimation
+            // 
+            this.tabPageAnimation.Controls.Add(this.label3);
+            this.tabPageAnimation.Controls.Add(this.numericUpDown1);
+            this.tabPageAnimation.Controls.Add(this.numericUpDownDiv);
+            this.tabPageAnimation.Controls.Add(this.button2);
+            this.tabPageAnimation.Controls.Add(this.label6);
+            this.tabPageAnimation.Location = new System.Drawing.Point(4, 29);
+            this.tabPageAnimation.Name = "tabPageAnimation";
+            this.tabPageAnimation.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageAnimation.Size = new System.Drawing.Size(630, 165);
+            this.tabPageAnimation.TabIndex = 1;
+            this.tabPageAnimation.Text = "Animation";
+            this.tabPageAnimation.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1302, 751);
-            this.Controls.Add(this.groupBox5);
+            this.Controls.Add(this.tabControl2);
+            this.Controls.Add(this.labelCurFrameInfo);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.hScrollBarFrames);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.groupBoxAnimation);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.pictureBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -847,10 +849,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDiv)).EndInit();
-            this.groupBoxAnimation.ResumeLayout(false);
-            this.groupBoxAnimation.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown12)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown11)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).EndInit();
@@ -858,10 +856,16 @@
             this.statusStrip1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPageGenerator.ResumeLayout(false);
+            this.tabPageGenerator.PerformLayout();
+            this.tabPageColorMap.ResumeLayout(false);
+            this.tabPageColorMap.PerformLayout();
+            this.tabControl2.ResumeLayout(false);
+            this.tabPageFrameInfo.ResumeLayout(false);
+            this.tabPageFrameInfo.PerformLayout();
+            this.tabPageAnimation.ResumeLayout(false);
+            this.tabPageAnimation.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -877,8 +881,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.NumericUpDown numericUpDownDiv;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.GroupBox groupBoxAnimation;
-        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.NumericUpDown numericUpDown10;
         private System.Windows.Forms.Button button7;
@@ -888,17 +890,14 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel labelStopwatch;
         private System.Windows.Forms.CheckBox checkBoxGeo;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cUDASettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel LabelCuda;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.Label labelActiveFormula;
         private System.Windows.Forms.Label labelFormulaError;
         private System.Windows.Forms.RichTextBox textBoxFormula;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
-        private System.Windows.Forms.Button button12;
         private System.Windows.Forms.ToolStripStatusLabel labelThreads;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel labelFrames;
@@ -908,7 +907,6 @@
         private System.Windows.Forms.ToolStripMenuItem polynom2ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem polynom3ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ToolStripMenuItem videoEditToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem appendToolStripMenuItem;
@@ -928,7 +926,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.HScrollBar hScrollBarFrames;
         private System.Windows.Forms.Label labelFrameInfo;
-        private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.ToolStripMenuItem файлToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem создатьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem открытьToolStripMenuItem;
@@ -942,8 +939,15 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem axesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ticksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
-        private System.Windows.Forms.ToolStripStatusLabel labelCurFrameInfo;
+        private System.Windows.Forms.ToolStripMenuItem removeFrameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cloneToWorkingAreaToolStripMenuItem;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPageGenerator;
+        private System.Windows.Forms.TabPage tabPageColorMap;
+        private System.Windows.Forms.Label labelCurFrameInfo;
+        private System.Windows.Forms.TabControl tabControl2;
+        private System.Windows.Forms.TabPage tabPageFrameInfo;
+        private System.Windows.Forms.TabPage tabPageAnimation;
     }
 }
 

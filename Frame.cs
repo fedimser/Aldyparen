@@ -315,7 +315,7 @@ namespace Aldyparen
            var ret = this.clone();
 
            ret.rotation = rotation+  step*(newFrame.rotation-rotation);
-           ret.scale = scale + step * (newFrame.scale - scale);
+           ret.scale =Math.Exp( Math.Log(scale) + step * ( Math.Log(newFrame.scale) - Math.Log(scale)));
            ret.ctr = ctr+  step*(newFrame.ctr-ctr);
            ret.param = this.param.getMove(newFrame.param, step);
 

@@ -22,12 +22,11 @@ namespace Aldyparen
         public FormMain formMain;
 
         private void FormSettings_Load(object sender, EventArgs e)
-        {
-            checkBoxRealTime.Checked = formMain.realTimeApplying;
-            textBoxInfty.Text = formMain.curFrame.param.genInfty.ToString();
-            textBoxSteps.Text = formMain.curFrame.param.genSteps.ToString();
-            textBoxInitX.Text = formMain.curFrame.param.genInit.Real.ToString();
-            textBoxInitY.Text = formMain.curFrame.param.genInit.Imaginary.ToString();
+        { 
+            textBoxInfty.Text = formMain.workFrame.param.genInfty.ToString();
+            textBoxSteps.Text = formMain.workFrame.param.genSteps.ToString();
+            textBoxInitX.Text = formMain.workFrame.param.genInit.Real.ToString();
+            textBoxInitY.Text = formMain.workFrame.param.genInit.Imaginary.ToString();
 
 
             // Video Settings
@@ -64,8 +63,7 @@ namespace Aldyparen
                 formMain.FPS = (int)numericUpDownFPS.Value;
                 formMain.videoHeight = (int)numericUpDownVideoHeight.Value;
                 formMain.videoWidth = (int)numericUpDownVideoWidth.Value;
-
-                formMain.realTimeApplying = checkBoxRealTime.Checked;
+                 
                 
 
 
@@ -84,12 +82,12 @@ namespace Aldyparen
                 }
 
 
-                formMain.curFrame.param.genInit = v1;
-                formMain.curFrame.param.genInfty = v2;
-                formMain.curFrame.param.genSteps = v3;
+                formMain.workFrame.param.genInit = v1;
+                formMain.workFrame.param.genInfty = v2;
+                formMain.workFrame.param.genSteps = v3;
 
 
-                formMain.curFrameChanged = true;
+                formMain.workFrameChanged = true;
             }
             catch (Exception ex)
             {

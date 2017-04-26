@@ -25,7 +25,7 @@ namespace Aldyparen
         public static bool enabled = false;
         public static bool corrupted = false;
         public static bool busy = false;
-        public static bool rowScan = false;
+        public static bool rowScan = true;
  
         public static String errorMessage;
 
