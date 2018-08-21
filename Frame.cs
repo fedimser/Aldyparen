@@ -10,16 +10,14 @@ using System.Windows.Forms;
 namespace Aldyparen
 {
 
-    [Serializable]
-   public  class Frame
+   [Serializable]
+   public class Frame
     {
-
         public enum GeneratingMode
         {
             Delegate,
             Formula
         }
-
        
         public delegate int Get_Pixel(Complex pnt, FrameParams p);
         public GeneratingMode genMode;

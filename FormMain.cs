@@ -17,13 +17,11 @@ namespace Aldyparen
 {
     public partial class FormMain : Form
     {
-
         public Frame workFrame;
         public bool workFrameChanged = false;
         Movie movie;
 
         Grid grid = new Grid(); 
-
 
         public FormMain()
         {
@@ -292,7 +290,7 @@ namespace Aldyparen
             wr = new AVIWriter();
 
             wr.FrameRate = Convert.ToInt32(param.FPS);
-            wr.Open(param.path, 2*param.halfWidth,2* param.halfHeight);
+            wr.Open(param.path, 2 * param.halfWidth, 2 * param.halfHeight);
 
             int frameCount = param.movie.frameCount();
             for (int i = 0; i < frameCount; i++)
@@ -1184,16 +1182,18 @@ namespace Aldyparen
 
 
 #endregion
+
+        private void previewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (movie.frameCount() == 0) {
+                MessageBox.Show("Nothing to play.");
+                return;
+            }
+            PreviewPlayer player = new PreviewPlayer();
+            player.setDownScale((double)numericUpDownDownscale.Value);
+            player.setShowFps(checkBoxShowFps.Checked);
+            player.play(movie);
+        }
          
- 
-        
-    
-
-
-
-
-
-
-
     }
 }

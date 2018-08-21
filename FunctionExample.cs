@@ -11,7 +11,6 @@ namespace Aldyparen
     {
         public static void example()
         {
-
             Function f = new Function();
             f.addVariable("x");
             f.addVariable("y");
@@ -23,8 +22,6 @@ namespace Aldyparen
             vars["x"] = 1;
             vars["x"] = 1;
             vars["x"] = 3;
-
-
 
             Console.WriteLine("Result: {0}",f.eval(vars));
         }

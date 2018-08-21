@@ -204,12 +204,8 @@ namespace Aldyparen
             }
 
             
-            Console.WriteLine("Symbols:");
-            foreach (Symbol s in symbols)
-            {
-                Console.WriteLine("{0},{1}(2)",s.code, s.value, s.posStart);
-            }
-             
+            // Console.WriteLine("Symbols:");
+            // foreach (Symbol s in symbols) Console.WriteLine("{0},{1}(2)",s.code, s.value, s.posStart);           
 
             //Building postfix notation
             Stack<Symbol> stack = new Stack<Symbol>();
@@ -281,12 +277,8 @@ namespace Aldyparen
 
 
             
-            Console.WriteLine("RPN:");
-            foreach (Symbol s in output)
-            {
-                Console.WriteLine("{0},{1}(2)", s.code, s.value, s.posStart);
-            }
-            
+            // Console.WriteLine("RPN:");
+            // foreach (Symbol s in output) Console.WriteLine("{0},{1}(2)", s.code, s.value, s.posStart); 
 
             //Checking
             int stackSize = 0;

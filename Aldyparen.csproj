@@ -76,12 +76,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormPlayer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPlayer.Designer.cs">
+      <DependentUpon>FormPlayer.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormSettings.Designer.cs">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>
+    <Compile Include="FpsUtils.cs" />
     <Compile Include="Frame.cs" />
     <Compile Include="FrameParams.cs" />
     <Compile Include="CudaPainter.cs" />
@@ -103,6 +110,7 @@
     <Compile Include="FunctionExample.cs" />
     <Compile Include="Grid.cs" />
     <Compile Include="Movie.cs" />
+    <Compile Include="PreviewPlayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -118,6 +126,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormCudaSettings.resx">
       <DependentUpon>FormCudaSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPlayer.resx">
+      <DependentUpon>FormPlayer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormSettings.resx">
       <DependentUpon>FormSettings.cs</DependentUpon>

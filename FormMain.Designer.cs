@@ -65,6 +65,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.previewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.выходToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.frameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,6 +106,10 @@
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPageFrameInfo = new System.Windows.Forms.TabPage();
             this.tabPageAnimation = new System.Windows.Forms.TabPage();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.numericUpDownDownscale = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.checkBoxShowFps = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -120,6 +125,8 @@
             this.tabControl2.SuspendLayout();
             this.tabPageFrameInfo.SuspendLayout();
             this.tabPageAnimation.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDownscale)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -399,6 +406,7 @@
             this.toolStripSeparator1,
             this.toolStripMenuItem2,
             this.toolStripMenuItem1,
+            this.previewToolStripMenuItem,
             this.toolStripSeparator2,
             this.выходToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
@@ -469,6 +477,13 @@
             this.toolStripMenuItem1.Size = new System.Drawing.Size(289, 30);
             this.toolStripMenuItem1.Text = "Make &Video";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
+            // previewToolStripMenuItem
+            // 
+            this.previewToolStripMenuItem.Name = "previewToolStripMenuItem";
+            this.previewToolStripMenuItem.Size = new System.Drawing.Size(289, 30);
+            this.previewToolStripMenuItem.Text = "Preview";
+            this.previewToolStripMenuItem.Click += new System.EventHandler(this.previewToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -791,6 +806,7 @@
             // 
             this.tabControl2.Controls.Add(this.tabPageFrameInfo);
             this.tabControl2.Controls.Add(this.tabPageAnimation);
+            this.tabControl2.Controls.Add(this.tabPage1);
             this.tabControl2.Location = new System.Drawing.Point(13, 427);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
@@ -822,6 +838,66 @@
             this.tabPageAnimation.TabIndex = 1;
             this.tabPageAnimation.Text = "Animation";
             this.tabPageAnimation.UseVisualStyleBackColor = true;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.checkBoxShowFps);
+            this.tabPage1.Controls.Add(this.numericUpDownDownscale);
+            this.tabPage1.Controls.Add(this.label1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 29);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(630, 165);
+            this.tabPage1.TabIndex = 2;
+            this.tabPage1.Text = "Preview settings";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // numericUpDownDownscale
+            // 
+            this.numericUpDownDownscale.DecimalPlaces = 2;
+            this.numericUpDownDownscale.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.numericUpDownDownscale.Location = new System.Drawing.Point(119, 30);
+            this.numericUpDownDownscale.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownDownscale.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.numericUpDownDownscale.Name = "numericUpDownDownscale";
+            this.numericUpDownDownscale.Size = new System.Drawing.Size(120, 26);
+            this.numericUpDownDownscale.TabIndex = 1;
+            this.numericUpDownDownscale.Value = new decimal(new int[] {
+            33,
+            0,
+            0,
+            131072});
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(7, 32);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(91, 20);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Downscale:";
+            // 
+            // checkBoxShowFps
+            // 
+            this.checkBoxShowFps.AutoSize = true;
+            this.checkBoxShowFps.Location = new System.Drawing.Point(11, 76);
+            this.checkBoxShowFps.Name = "checkBoxShowFps";
+            this.checkBoxShowFps.Size = new System.Drawing.Size(110, 24);
+            this.checkBoxShowFps.TabIndex = 2;
+            this.checkBoxShowFps.Text = "Show FPS";
+            this.checkBoxShowFps.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -866,6 +942,9 @@
             this.tabPageFrameInfo.PerformLayout();
             this.tabPageAnimation.ResumeLayout(false);
             this.tabPageAnimation.PerformLayout();
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDownscale)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -948,6 +1027,11 @@
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPageFrameInfo;
         private System.Windows.Forms.TabPage tabPageAnimation;
+        private System.Windows.Forms.ToolStripMenuItem previewToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown numericUpDownDownscale;
+        private System.Windows.Forms.CheckBox checkBoxShowFps;
     }
 }
 
