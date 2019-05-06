@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Numerics;
-using AForge.Video.VFW;
+using Accord.Video.VFW;
 using System.Drawing.Imaging;
 
 using System.Threading;
@@ -286,7 +286,7 @@ namespace Aldyparen
 
             VideoParameters param = (VideoParameters)_param;
 
-            AForge.Video.VFW.AVIWriter wr;
+            Accord.Video.VFW.AVIWriter wr;
             wr = new AVIWriter();
 
             wr.FrameRate = Convert.ToInt32(param.FPS);
@@ -558,7 +558,10 @@ namespace Aldyparen
             for (int i = 0; i < workFrame.param.maxUsedColors; i++)
             {
                 setMapColor(i,   Color.FromArgb(255, r.Next(255), r.Next(255), r.Next(255)));
-                setColors(movie[-1]);
+                if (movie.frameCount() > 0)
+                {
+                    setColors(movie[-1]);
+                }
             }
             workFrameChanged = true;
  

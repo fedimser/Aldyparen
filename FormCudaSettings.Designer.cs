@@ -33,7 +33,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelProperties = new System.Windows.Forms.Label();
@@ -73,7 +72,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.checkBox2);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.panel1);
             this.groupBox1.Controls.Add(this.checkBox1);
@@ -82,16 +80,6 @@
             this.groupBox1.Size = new System.Drawing.Size(741, 336);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(427, 25);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(308, 24);
-            this.checkBox2.TabIndex = 6;
-            this.checkBox2.Text = "Row scan (for extremely large pictures)";
-            this.checkBox2.UseVisualStyleBackColor = true; 
             // 
             // label2
             // 
@@ -131,7 +119,6 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormCudaSettings";
             this.Text = "CUDA Settings";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormCudaSettings_FormClosing);
             this.Load += new System.EventHandler(this.FormCudaSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -151,6 +138,5 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label labelProperties;
-        private System.Windows.Forms.CheckBox checkBox2;
     }
 }

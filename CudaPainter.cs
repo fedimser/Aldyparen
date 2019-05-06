@@ -11,7 +11,7 @@ using Cudafy.Types;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
- 
+using System.IO;
 
 
 
@@ -19,22 +19,21 @@ namespace Aldyparen
 {
     class CudaPainter
     {
-         
-
         private static GPGPU gpu;
         public static bool enabled = false;
         public static bool corrupted = false;
         public static bool busy = false;
-        public static bool rowScan = true;
- 
+        public const eArchitecture ARCH = eArchitecture.sm_35;
+
         public static String errorMessage;
+        public static GPGPUProperties gpgpuProperties;
 
         public static bool cudaEnable()
         {
             if (!isCudaAvailable()) return false;
             try
             {
-                CudafyModule km = CudafyTranslator.Cudafy();
+                CudafyModule km = CudafyTranslator.Cudafy(ARCH);
                 Console.WriteLine("Translator OK");
                 gpu = CudafyHost.GetDevice(CudafyModes.Target, CudafyModes.DeviceId);
                 Console.WriteLine("GPU OK");
@@ -46,8 +45,8 @@ namespace Aldyparen
             catch (Exception ex)
             {
                 errorMessage = ex.ToString();
-                return false; 
-            } 
+                return false;
+            }
         }
 
         public static void cudaDisable()
@@ -61,9 +60,10 @@ namespace Aldyparen
         }
 
         public static GPGPUProperties getProperties()
-        { 
+        {
             foreach (GPGPUProperties prop in CudafyHost.GetDeviceProperties(CudafyModes.Target))
             {
+                gpgpuProperties = prop;
                 return prop;
             }
             return null;
@@ -72,7 +72,7 @@ namespace Aldyparen
         public static String getPropertiesString()
         {
             GPGPUProperties prop = getProperties();
-            if(prop==null) return "N/A";
+            if (prop == null) return "N/A";
 
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("   --- General Information for device {0} ---\n", 0);
@@ -106,7 +106,7 @@ namespace Aldyparen
 
         public static bool canRender(Frame frame)
         {
-            return (frame.genMode==Frame.GeneratingMode.Formula);
+            return (frame.genMode == Frame.GeneratingMode.Formula);
         }
 
         unsafe public static Bitmap render(int halfWidth, int halfHeight, Frame frame)
@@ -120,7 +120,7 @@ namespace Aldyparen
             {
                 throw new Exception("You must restart application if you want to use CUDA!");
             }
-
+            
             try
             {
                 busy = true;
@@ -130,17 +130,8 @@ namespace Aldyparen
                     gpu.SetCurrentContext();
                 }
 
-
-                byte[] b = new byte[12 * halfWidth * halfHeight];
-
-
-
                 //Allocating memory for answer
                 byte[] dev_b = gpu.Allocate<byte>(12 * halfWidth * halfHeight);
-                gpu.CopyToDevice(b, dev_b);
-
-
-
 
                 //Forming and passing color map
                 int colorCount = frame.colorMap.Length;
@@ -174,52 +165,38 @@ namespace Aldyparen
                 }
 
                 ComplexD[] dev_rpnKoef = gpu.Allocate<ComplexD>(cnt);
-
                 gpu.CopyToDevice(rpnKoef, dev_rpnKoef);
-
-
-
 
                 //Allocating memory for stacks
                 ComplexD[] dev_stackMem = gpu.Allocate<ComplexD>(4 * halfWidth * halfHeight * Function.MAX_STACK_SIZE);
 
 
-                 
                 //Calling main routine
                 int N = frame.param.genFunc.rpnFormula.Length;
-                dim3 gs = new dim3(2 * halfWidth, 2 * halfHeight);
+                int pixelCount = 4 * halfWidth * halfHeight;
+                int threadsPerBlock = gpgpuProperties.MaxThreadsPerBlock;
+                int blocksCount = (pixelCount + threadsPerBlock - 1) / threadsPerBlock;
 
-                if (rowScan)
-                {
-                    gs = new dim3(2 * halfWidth, 1);
-                    for (int y = 0; y < 2 * halfHeight; y++)
-                    {
-                        gpu.Launch(gs, 1).setPixel(halfWidth, halfHeight, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, y);
-                    }
-                }
-                else
-                {
-                    gpu.Launch(gs, 1).setPixel(halfWidth, halfHeight, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps, 0);
-                }
+
+                gpu.Launch(blocksCount, threadsPerBlock).setPixel(halfWidth, halfHeight, N, dev_b, dev_colorMap, dev_stackMem, dev_rpnFormula, dev_rpnKoef, (double)frame.rotation, (double)frame.scale, new ComplexD((double)frame.ctr.Real, (double)frame.ctr.Imaginary), new ComplexD((double)frame.param.genInit.Real, (double)frame.param.genInit.Imaginary), (double)frame.param.genInfty, frame.param.genSteps);
+                
+                // Getting answer back.
+                byte[] b = new byte[12 * halfWidth * halfHeight];
                 gpu.CopyFromDevice(dev_b, b);
 
-
-
-                //Freeing memory
+                // Freeing memory
                 gpu.Free(dev_b);
                 gpu.Free(dev_colorMap);
                 gpu.Free(dev_rpnFormula);
                 gpu.Free(dev_rpnKoef);
                 gpu.Free(dev_stackMem);
 
-
-                //saving picture
+                // Saving picture
                 int width = halfWidth * 2;
                 int height = halfHeight * 2;
                 Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
                 BitmapData bd = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
                 byte* curpos = ((byte*)bd.Scan0);
-
 
                 for (int y = 0; y < height; y++)
                 {
@@ -240,27 +217,23 @@ namespace Aldyparen
             {
                 corrupted = true;
                 throw ex;
-                return null;
-            }      
-          
-
-            
+            }
         }
-         
+
 
         [Cudafy]
         private static int Mandelbrot(ComplexD c)
         {
             //DEBUG = MANDELBROT
-            double r =  Cudafy.GMath.Sqrt((float)((c.x - 0.25F) * (c.x - 0.25F) + c.y * c.y));
+            double r = Cudafy.GMath.Sqrt((float)((c.x - 0.25F) * (c.x - 0.25F) + c.y * c.y));
             double t = Cudafy.GMath.Atan2((float)c.y, (float)c.x);
             if (r <= 0.5 * (1 - Cudafy.GMath.Cos((float)t))) return 0;
-             
 
-            ComplexD z = new ComplexD(0,0);
+
+            ComplexD z = new ComplexD(0, 0);
             for (int i = 0; i < 200; i++)
             {
-                z = ComplexD.Add(ComplexD.Multiply( z ,z), c);
+                z = ComplexD.Add(ComplexD.Multiply(z, z), c);
                 if (z.x * z.x + z.y * z.y > 4) return 1;
             }
             return 0;
@@ -268,29 +241,27 @@ namespace Aldyparen
 
 
         [Cudafy]
-        private static void setPixel(GThread thread, int W, int H,int rpnLength,byte[] bmp, byte[] colorMap,ComplexD[] stackMem,
-            byte[] rpnFormula, ComplexD[] rpnKoef ,double rotation, 
-            double scale, ComplexD ctr,ComplexD init,double infty,int steps,
-            int offsetY)
+        private static void setPixel(GThread thread, int W, int H, int rpnLength, byte[] bmp, byte[] colorMap, ComplexD[] stackMem,
+            byte[] rpnFormula, ComplexD[] rpnKoef, double rotation,
+            double scale, ComplexD ctr, ComplexD init, double infty, int steps)
         {
-            int x = thread.blockIdx.x;
-            int y = thread.blockIdx.y+offsetY;
-            int idx = x + 2 * W * y;
+            int pixelId = thread.blockIdx.x*thread.blockDim.x + thread.threadIdx.x;
 
-            ComplexD c1 = new ComplexD(Cudafy.GMath.Cos((float)rotation), Cudafy.GMath.Sin((float)rotation)); 
-            ComplexD c2 = new ComplexD((x - W) * (scale / W), (y - H) * (scale / W)) ;
-            ComplexD c = ComplexD.Add(  ComplexD.Multiply(c1,c2), ctr);
+            int x = pixelId % (2 * W);
+            int y = pixelId / (2*W);
+            if (y >= 2 * H) return;
+            
+            ComplexD c1 = new ComplexD(Cudafy.GMath.Cos((float)rotation), Cudafy.GMath.Sin((float)rotation));
+            ComplexD c2 = new ComplexD((x - W) * (scale / W), (y - H) * (scale / W));
+            ComplexD c = ComplexD.Add(ComplexD.Multiply(c1, c2), ctr);
 
+            int clr = getSequenceDivergence(c, rpnLength, rpnFormula, rpnKoef, init, infty, steps, stackMem, Function.MAX_STACK_SIZE * pixelId);
 
-            int clr = getSequenceDivergence(c, rpnLength, rpnFormula, rpnKoef, init, infty, steps, stackMem, Function.MAX_STACK_SIZE * idx);
-           
-
-
-            bmp[3 * idx] = colorMap[3 * clr];
-            bmp[3 * idx + 1] = colorMap[3 * clr+1];
-            bmp[3 * idx + 2] = colorMap[3 * clr+2];      
+            bmp[3 * pixelId] = colorMap[3 * clr];
+            bmp[3 * pixelId + 1] = colorMap[3 * clr + 1];
+            bmp[3 * pixelId + 2] = colorMap[3 * clr + 2];
         }
- 
+
 
 
 
@@ -299,17 +270,17 @@ namespace Aldyparen
             return new ComplexD((double)x.Real, (double)x.Imaginary);
         }
 
-         
+
         [Cudafy]
         private static int getSequenceDivergence(ComplexD c, int rpnLength, byte[] rpnFormula, ComplexD[] rpnKoef,
             ComplexD init, double infty, int steps, ComplexD[] stackMem, int stackOffset)
         {
             // DEBUG
             //return Mandelbrot(c);
-            
-            ComplexD z = init; 
+
+            ComplexD z = init;
             for (int i = steps - 1; i >= 1; i--)
-            { 
+            {
                 z = eval(rpnLength, rpnFormula, rpnKoef, c, z, stackMem, stackOffset);
                 if (abs(z) > infty) return i;
             }
@@ -320,7 +291,7 @@ namespace Aldyparen
 
         #region "Math"
 
-        
+
 
 
         [Cudafy]
@@ -439,13 +410,13 @@ namespace Aldyparen
         {
             double a = abs(c1);
             double b = arg(c1);
-            double c =   c2.x;
-            double d =   c2.y;
+            double c = c2.x;
+            double d = c2.y;
 
             if (a == 0) a = 1e-38F;
 
             return makeComplexD(Cudafy.GMath.Pow((float)a, (float)c) * Cudafy.GMath.Exp((float)(-b * d)), Cudafy.GMath.Log((float)a) * d + b * c);
-             
+
         }
 
 
@@ -455,7 +426,7 @@ namespace Aldyparen
             ComplexD x1 = new ComplexD(-c.y, c.x);
             ComplexD one = new ComplexD(1, 0);
             ComplexD x2 = sqrt(ComplexD.Subtract(one, ComplexD.Multiply(c, c)));
-             
+
             return ComplexD.Multiply(new ComplexD(0, -1), log(ComplexD.Add(x1, x2)));
         }
 
@@ -463,13 +434,13 @@ namespace Aldyparen
         private static ComplexD arccos(ComplexD c)
         {
             ComplexD t = arcsin(c);
-            return new ComplexD(0.5 *3.14159265358979323846 - t.x, -t.y);
+            return new ComplexD(0.5 * 3.14159265358979323846 - t.x, -t.y);
         }
 
         [Cudafy]
         private static ComplexD arctg(ComplexD c)
-        { 
-            ComplexD x = ComplexD.Divide(new ComplexD(1-c.y, c.x), new ComplexD(1+c.y,-c.x));
+        {
+            ComplexD x = ComplexD.Divide(new ComplexD(1 - c.y, c.x), new ComplexD(1 + c.y, -c.x));
             return ComplexD.Multiply(new ComplexD(0, -0.5), log(x));
         }
 
@@ -477,7 +448,7 @@ namespace Aldyparen
         private static ComplexD arcctg(ComplexD c)
         {
             ComplexD t = arctg(c);
-            return new ComplexD( 3.14159265358979323846 - t.x, -t.y);
+            return new ComplexD(3.14159265358979323846 - t.x, -t.y);
         }
 
 
@@ -545,7 +516,7 @@ namespace Aldyparen
 
 
         #endregion
-       
+
 
 
     }

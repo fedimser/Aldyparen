@@ -220,7 +220,7 @@
             // 
             this.numericUpDownVideoHeight.Location = new System.Drawing.Point(70, 100);
             this.numericUpDownVideoHeight.Maximum = new decimal(new int[] {
-            2000,
+            3000,
             0,
             0,
             0});
@@ -251,7 +251,7 @@
             // 
             this.numericUpDownVideoWidth.Location = new System.Drawing.Point(70, 68);
             this.numericUpDownVideoWidth.Maximum = new decimal(new int[] {
-            2000,
+            3000,
             0,
             0,
             0});
@@ -365,7 +365,7 @@
             this.numericUpDownPhotoWidth.Location = new System.Drawing.Point(55, 22);
             this.numericUpDownPhotoWidth.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDownPhotoWidth.Maximum = new decimal(new int[] {
-            10000,
+            3000,
             0,
             0,
             0});
@@ -393,7 +393,7 @@
             this.numericUpDownPhotoHeight.Location = new System.Drawing.Point(147, 22);
             this.numericUpDownPhotoHeight.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDownPhotoHeight.Maximum = new decimal(new int[] {
-            10000,
+            3000,
             0,
             0,
             0});

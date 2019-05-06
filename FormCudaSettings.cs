@@ -54,10 +54,6 @@ namespace Aldyparen
                 label1.Text = "CUDA is unavailable. You must have Nvidia GPU and CUDA driver installed.";
                 groupBox1.Enabled = false;
             }
-
-            
-
-            checkBox2.Checked = CudaPainter.rowScan; 
         }
  
 
@@ -84,11 +80,6 @@ namespace Aldyparen
 
             checkBox1.Checked = CudaPainter.enabled;
              
-        }
-
-        private void FormCudaSettings_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            CudaPainter.rowScan = checkBox2.Checked;
         }
          
     }
